@@ -158,6 +158,7 @@ func (lp *LogPoller) decodeLog(log types.Log) error {
 	if err != nil {
 		return fmt.Errorf("failed to parse request %v", err)
 	}
+
 	if lp.unfulfilled[req.RequestId.String()] != nil {
 		return fmt.Errorf("already fulfilled")
 	}
