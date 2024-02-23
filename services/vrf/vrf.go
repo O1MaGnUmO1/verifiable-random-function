@@ -5,6 +5,7 @@ import (
 	"math/big"
 	"os"
 	"time"
+	"vrf/keys/secp256k1"
 	"vrf/keys/vrfkey"
 	"vrf/utils"
 
@@ -85,6 +86,18 @@ func (vrf *VRFService) PrintVrfKey() {
 	fmt.Println(vrf.key.PublicKey.MustHash().Hex())
 	fmt.Println("------------------------------------------------------------------------------------------------------------------------------------")
 	fmt.Println()
+
+	pki, err := secp256k1.NewPublicKeyFromHex(vrf.key.PublicKey.String())
+	if err != nil {
+		panic(err)
+	}
+	point, err := pki.Point()
+	if err != nil {
+		panic(err)
+	}
+	x, y := secp256k1.Coordinates(point)
+	fmt.Println(x)
+	fmt.Println(y)
 }
 
 func ProcessPendingVRFRequests() {

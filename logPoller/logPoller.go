@@ -31,6 +31,7 @@ type LogPoller struct {
 	vrf_service     vrf_service.VRFService
 	wallet_service  *wallet_service.WalletService
 	client          *client.Client
+	coord           coordinator.Coordinator
 	contractAddress common.Address
 	eventSignature  []common.Hash
 	lastBlockNumber *big.Int
@@ -48,6 +49,10 @@ func NewLogPoller(client *client.Client, contractAddress common.Address, replayF
 	parsedABI, err := abi.JSON(strings.NewReader(coordinator.CoordinatorABI))
 	if err != nil {
 		return nil, err
+	}
+	coord, err := coordinator.NewCoordinator(contractAddress, client.EthClient)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create coordinator %v", err)
 	}
 
 	eventSignature := parsedABI.Events["RandomWordsRequested"].ID
@@ -70,6 +75,7 @@ func NewLogPoller(client *client.Client, contractAddress common.Address, replayF
 		replayFromBlock: replayFromBlock,
 		unfulfilled:     make(map[string]*coordinator.CoordinatorRandomWordsRequested),
 		logger:          logger,
+		coord:           *coord,
 		wallet_service:  &wallet_service,
 		vrf_service:     vrf_service,
 	}, nil
@@ -153,8 +159,7 @@ func (lp *LogPoller) pollLogs() error {
 	for _, log := range logs {
 		err := lp.decodeLog(log)
 		if err != nil {
-			fmt.Printf("error is %v", err)
-			return err
+			fmt.Errorf("failed to decode log %v", err)
 		}
 	}
 
@@ -167,25 +172,29 @@ func (lp *LogPoller) pollLogs() error {
 }
 
 func (lp *LogPoller) decodeLog(log types.Log) error {
-	coord, err := coordinator.NewCoordinator(lp.contractAddress, lp.client.EthClient)
-	if err != nil {
-		return fmt.Errorf("failed to create coordinator %v", err)
-	}
-	req, err := coord.ParseRandomWordsRequested(log)
+	req, err := lp.coord.ParseRandomWordsRequested(log)
 	if err != nil {
 		return fmt.Errorf("failed to parse request %v", err)
 	}
 
+	fmt.Printf("Block hash: %s\n", log.BlockHash.Hex())
+	fmt.Printf("Block hash: %x\n", log.BlockNumber)
+
 	key := lp.vrf_service.GetVrfKey()
 	pkh := key.PublicKey.MustHash()
 	if !bytes.Equal(req.KeyHash[:], pkh[:]) {
+		logrus.WithFields(logrus.Fields{
+			"expected Key Hash": pkh.Hex(),
+			"Actual":            common.BytesToHash(req.KeyHash[:]),
+			"Request ID":        req.RequestId,
+		}).Info()
 		return fmt.Errorf("key hashes are not equal")
 	}
 
 	if lp.unfulfilled[req.RequestId.String()] != nil {
 		return fmt.Errorf("already fulfilled")
 	}
-	com, err := coord.GetCommitment(nil, req.RequestId)
+	com, err := lp.coord.GetCommitment(nil, req.RequestId)
 	if err != nil {
 		return fmt.Errorf("failed to get commitment with request ID : %s Err: %v", common.BigToHash(req.RequestId).Hex(), err)
 	}
@@ -215,8 +224,8 @@ func (lp *LogPoller) decodeLog(log types.Log) error {
 		}
 		preSeedData := proof.PreSeedDataV2{
 			PreSeed:          preSeed,
-			BlockHash:        common.BytesToHash(req.Raw.BlockHash[:]),
-			BlockNum:         req.Raw.BlockNumber,
+			BlockHash:        log.BlockHash,
+			BlockNum:         log.BlockNumber,
 			SubId:            req.SubId,
 			CallbackGasLimit: req.CallbackGasLimit,
 			NumWords:         req.NumWords,
@@ -230,6 +239,13 @@ func (lp *LogPoller) decodeLog(log types.Log) error {
 		onChainProof, rc, err := proof.GenerateProofResponseFromProofV2(p, preSeedData)
 		if err != nil {
 			return fmt.Errorf("failed to generate proof responce %v", err)
+		}
+		ok, err := p.VerifyVRFProof()
+		if !ok {
+			panic("failed to verify proof")
+		}
+		if err != nil {
+			panic(err)
 		}
 
 		// parsedABI, err := abi.JSON(strings.NewReader(coordinator.CoordinatorABI))
@@ -247,7 +263,7 @@ func (lp *LogPoller) decodeLog(log types.Log) error {
 		transactOPtx.Nonce = new(big.Int).SetUint64(nonce)
 		// signerFn := InitializeSignerFn(chainID)
 		// transactOPtx.Signer = signerFn
-		tx, err := coord.FulfillRandomWords(transactOPtx, onChainProof, rc)
+		tx, err := lp.coord.FulfillRandomWords(transactOPtx, onChainProof, rc)
 		if err != nil {
 			fmt.Printf("Fulfill error is %v", err)
 			return fmt.Errorf("failed to fulfill random %v", err)

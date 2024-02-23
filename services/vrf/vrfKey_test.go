@@ -144,7 +144,7 @@ func TestVrfKeyX_Y(t *testing.T) {
 	// 	rc.Sender,
 	// )
 
-	pki, err := secp256k1.NewPublicKeyFromHex("0x3c09d06dc1dfb36e0ad578e5b5894eea93dfbdec382474d24ed75250818fba7500")
+	pki, err := secp256k1.NewPublicKeyFromHex("0xcb1768340d701d4de008f82020bdd59a51b01dc5f9d342306af45968cc193d7b00")
 	if err != nil {
 		panic(err)
 	}
