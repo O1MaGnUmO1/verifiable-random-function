@@ -3,10 +3,12 @@ package vrfkey
 import (
 	"crypto/ecdsa"
 	"encoding/json"
+	"os"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	"vrf/keys/secp256k1"
 	"vrf/utils"
@@ -82,4 +84,21 @@ var passwordPrefix = "don't mix VRF and Ethereum keys!"
 
 func adulteratedPassword(password string) string {
 	return passwordPrefix + password
+}
+
+func GetKeyIfEnvSet() (KeyV2, error) {
+	if (os.Getenv("EC_VRF_KEY_JSON_PATH")) != "" && os.Getenv("EC_VRF_KEY_PASSWORD") != "" {
+		jsonData, err := os.ReadFile(os.Getenv("EC_VRF_KEY_JSON_PATH"))
+		if err != nil {
+			logrus.Errorf("failed to read file %v", err)
+			return KeyV2{}, err
+		}
+		key, err := FromEncryptedJSON(jsonData, os.Getenv("EC_VRF_KEY_PASSWORD"))
+		if err != nil {
+			logrus.Errorf("failed get key from encrypted json %v", err)
+			return KeyV2{}, err
+		}
+		return key, nil
+	}
+	return KeyV2{}, nil
 }

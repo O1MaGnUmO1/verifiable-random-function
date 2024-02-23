@@ -1,6 +1,7 @@
 package logpoller
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -12,10 +13,14 @@ import (
 	"time"
 	"vrf/client"
 	"vrf/coordinator"
+	"vrf/keys/vrfkey/proof"
+	vrf_service "vrf/services/vrf"
+	wallet_service "vrf/services/wallet"
 	"vrf/utils"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/sirupsen/logrus"
@@ -23,6 +28,8 @@ import (
 
 // LogPoller represents an Ethereum log poller
 type LogPoller struct {
+	vrf_service     vrf_service.VRFService
+	wallet_service  *wallet_service.WalletService
 	client          *client.Client
 	contractAddress common.Address
 	eventSignature  []common.Hash
@@ -37,7 +44,7 @@ type LogState struct {
 }
 
 // NewLogPoller creates a new instance of LogPoller
-func NewLogPoller(client *client.Client, contractAddress common.Address, replayFromBlock *big.Int) (*LogPoller, error) {
+func NewLogPoller(client *client.Client, contractAddress common.Address, replayFromBlock *big.Int, wallet_service wallet_service.WalletService, vrf_service vrf_service.VRFService) (*LogPoller, error) {
 	parsedABI, err := abi.JSON(strings.NewReader(coordinator.CoordinatorABI))
 	if err != nil {
 		return nil, err
@@ -63,15 +70,24 @@ func NewLogPoller(client *client.Client, contractAddress common.Address, replayF
 		replayFromBlock: replayFromBlock,
 		unfulfilled:     make(map[string]*coordinator.CoordinatorRandomWordsRequested),
 		logger:          logger,
+		wallet_service:  &wallet_service,
+		vrf_service:     vrf_service,
 	}, nil
 }
 
 // Start starts the log polling process
 func (lp *LogPoller) Start(ctx context.Context) error {
+	// go lp.wallet_service.MonitorBalanceChanges()
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
+		// case newBalance := <-lp.wallet_service.BalanceCh:
+		// 	logrus.WithFields(logrus.Fields{
+		// 		"Previous Balance": wallet_service.WeiToETH((newBalance.OldBalance)) + "FTN",
+		// 		"Current Balance":  wallet_service.WeiToETH(newBalance.NewBalance) + "FTN",
+		// 		"Amount":           wallet_service.WeiToETH(newBalance.NewBalance.Sub(newBalance.NewBalance, newBalance.OldBalance)) + "FTN",
+		// 	}).Info("Got Deposit")
 		default:
 			err := lp.pollLogs()
 			if err != nil {
@@ -137,7 +153,8 @@ func (lp *LogPoller) pollLogs() error {
 	for _, log := range logs {
 		err := lp.decodeLog(log)
 		if err != nil {
-			fmt.Errorf("failed to decode log %v", err)
+			fmt.Printf("error is %v", err)
+			return err
 		}
 	}
 
@@ -159,6 +176,12 @@ func (lp *LogPoller) decodeLog(log types.Log) error {
 		return fmt.Errorf("failed to parse request %v", err)
 	}
 
+	key := lp.vrf_service.GetVrfKey()
+	pkh := key.PublicKey.MustHash()
+	if !bytes.Equal(req.KeyHash[:], pkh[:]) {
+		return fmt.Errorf("key hashes are not equal")
+	}
+
 	if lp.unfulfilled[req.RequestId.String()] != nil {
 		return fmt.Errorf("already fulfilled")
 	}
@@ -172,19 +195,75 @@ func (lp *LogPoller) decodeLog(log types.Log) error {
 		}).Info("Received already fulfilled request\n\n")
 		fmt.Println()
 		return err
+	} else {
+		lp.unfulfilled[req.RequestId.String()] = req
+		lp.logger.WithFields(logrus.Fields{
+			"Timestamp":          time.Now().UTC(),
+			"KeyHash":            common.BytesToHash(req.KeyHash[:]),
+			"Request ID":         common.BytesToHash(req.RequestId.Bytes()),
+			"Callback Gas Limit": req.CallbackGasLimit,
+			"Min Incoming Confs": req.MinimumRequestConfirmations,
+			"Num Words":          req.NumWords,
+			"Sub ID":             req.SubId,
+			"Sender":             req.Sender.Hex(),
+		}).Info("Random Words Requested")
+		fmt.Println()
+
+		preSeed, err := proof.BigToSeed(req.PreSeed)
+		if err != nil {
+			return fmt.Errorf("failed to get preseed %v", err)
+		}
+		preSeedData := proof.PreSeedDataV2{
+			PreSeed:          preSeed,
+			BlockHash:        common.BytesToHash(req.Raw.BlockHash[:]),
+			BlockNum:         req.Raw.BlockNumber,
+			SubId:            req.SubId,
+			CallbackGasLimit: req.CallbackGasLimit,
+			NumWords:         req.NumWords,
+			Sender:           req.Sender,
+		}
+		finalSeed := proof.FinalSeedV2(preSeedData)
+		p, err := key.GenerateProof(finalSeed)
+		if err != nil {
+			return fmt.Errorf("failed to generate proof %v", err)
+		}
+		onChainProof, rc, err := proof.GenerateProofResponseFromProofV2(p, preSeedData)
+		if err != nil {
+			return fmt.Errorf("failed to generate proof responce %v", err)
+		}
+
+		// parsedABI, err := abi.JSON(strings.NewReader(coordinator.CoordinatorABI))
+		// if err != nil {
+		// 	return fmt.Errorf("failed to parse abi %v", err)
+		// }
+
+		// b, err := parsedABI.Pack("fulfillRandomWords", onChainProof, rc)
+		nonce, err := lp.client.EthClient.PendingNonceAt(context.Background(), lp.wallet_service.Key.Address)
+		if err != nil {
+			return fmt.Errorf("failed to get nonce %v", err)
+		}
+		// chainId, _ := new(big.Int).SetString("4090", 10)
+		transactOPtx := bind.NewKeyedTransactor(lp.wallet_service.Key.ToEcdsaPrivKey())
+		transactOPtx.Nonce = new(big.Int).SetUint64(nonce)
+		// signerFn := InitializeSignerFn(chainID)
+		// transactOPtx.Signer = signerFn
+		tx, err := coord.FulfillRandomWords(transactOPtx, onChainProof, rc)
+		if err != nil {
+			fmt.Printf("Fulfill error is %v", err)
+			return fmt.Errorf("failed to fulfill random %v", err)
+		}
+		fmt.Printf("tx hash %s", tx.Hash())
+		// chainId, _ := new(big.Int).SetString("4090", 10)
+		// signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainId), lp.wallet_service.Key.ToEcdsaPrivKey())
+		// if err != nil {
+		// 	return fmt.Errorf("failed to sign tx %v", err)
+		// }
+		// err = lp.client.EthClient.SendTransaction(context.Background(), signedTx)
+		// if err != nil {
+		// 	return err
+		// }
+		// logrus.Printf("Transaction sent: %s", signedTx.Hash().Hex())
 	}
-	lp.unfulfilled[req.RequestId.String()] = req
-	lp.logger.WithFields(logrus.Fields{
-		"Timestamp":          time.Now().UTC(),
-		"KeyHash":            common.BytesToHash(req.KeyHash[:]),
-		"Request ID":         common.BytesToHash(req.RequestId.Bytes()),
-		"Callback Gas Limit": req.CallbackGasLimit,
-		"Min Incoming Confs": req.MinimumRequestConfirmations,
-		"Num Words":          req.NumWords,
-		"Sub ID":             req.SubId,
-		"Sender":             req.Sender.Hex(),
-	}).Info("Random Words Requested")
-	fmt.Println()
 
 	return nil
 }

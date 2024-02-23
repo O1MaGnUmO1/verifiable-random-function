@@ -1,9 +1,12 @@
 package ethkey
 
 import (
+	"os"
+
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	"vrf/utils"
 )
@@ -26,4 +29,25 @@ func (key KeyV2) ToEncryptedJSON(password string, scryptParams utils.ScryptParam
 		PrivateKey: key.privateKey,
 	}
 	return keystore.EncryptKey(dKey, password, scryptParams.N, scryptParams.P)
+}
+
+func GetKeyIfEnvSet() (KeyV2, error) {
+	if (os.Getenv("EC_FTN_KEY_JSON_PATH")) != "" && os.Getenv("EC_FTN_KEY_PASSWORD") != "" {
+		jsonData, err := os.ReadFile(os.Getenv("EC_FTN_KEY_JSON_PATH"))
+		if err != nil {
+			logrus.Errorf("failed to read file %v", err)
+			return KeyV2{}, err
+		}
+		dKey, err := keystore.DecryptKey(jsonData, os.Getenv("EC_FTN_KEY_PASSWORD"))
+		if err != nil {
+			return KeyV2{}, err
+		}
+		key := FromPrivateKey(dKey.PrivateKey)
+		if err != nil {
+			logrus.Errorf("failed get key from encrypted json %v", err)
+			return KeyV2{}, err
+		}
+		return key, nil
+	}
+	return KeyV2{}, nil
 }

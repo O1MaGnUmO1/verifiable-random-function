@@ -48,7 +48,7 @@ func main() {
 	// Define the contract address
 	contractAddress := common.HexToAddress("0x1f16092d5E87bE974454b3601B47f1F60d6C0C6F")
 
-	lp, err := logpoller.NewLogPoller(client, contractAddress, big.NewInt(1000000))
+	lp, err := logpoller.NewLogPoller(client, contractAddress, big.NewInt(1000000), *wallet, *vrf)
 	if err != nil {
 		fmt.Printf("failed to create log poller %v", err)
 	}
