@@ -7,7 +7,12 @@
         "request": "launch",
         "mode": "debug",
         "program": "${workspaceFolder}/main.go",
-        // "args": ["node", "-config", "/home/albert/.chainlink-goerli/config.toml", "-secrets", "/home/albert/.chainlink-goerli/secrets.toml", "start"],
+        "env": {
+          "EC_VRF_KEY_JSON_PATH": "~/Downloads/test_vrf/vrf_jey.json",
+          "EC_FTN_KEY_JSON_PATH": "~/Downloads/test_vrf/ftn_jey.json",
+          "EC_VRF_KEY_PASSWORD":"albertalik1234567890",
+          "EC_FTN_KEY_PASSWORD":"albertalik1234567890",
+        }     
       }
     ]
   }

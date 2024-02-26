@@ -29,7 +29,7 @@ type LogApproval struct {
 
 func main() {
 	// Connect to the Ethereum node
-	client, err := client.NewClient("https://rpc1.oasis.bahamutchain.com")
+	client, err := client.NewClient("wss://ws1.oasis.bahamutchain.com")
 	if err != nil {
 		fmt.Printf("failed to dial %v", err)
 	}
