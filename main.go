@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 	"vrf/client"
+	"vrf/headtracker"
 	logpoller "vrf/logPoller"
 	vrf_service "vrf/services/vrf"
 	wallet_sevice "vrf/services/wallet"
@@ -53,7 +54,20 @@ func main() {
 		fmt.Printf("failed to create log poller %v", err)
 	}
 	fmt.Println("Starting log poller...")
-	if err := lp.Start(context.Background()); err != nil {
-		fmt.Errorf("failed to start log poller %v", err)
+	// if err := lp.Start(context.Background()); err != nil {
+	// 	fmt.Errorf("failed to start log poller %v", err)
+	// }
+
+	ht := headtracker.NewHeadTracker(client, lp)
+
+	// var wg sync.WaitGroup
+	// wg.Add(1)
+	// go func() {
+	// defer wg.Done()
+	err = ht.Start(context.Background())
+	if err != nil {
+		fmt.Printf("error starting head tracker %v", err)
 	}
+	// }()
+	// wg.Wait()
 }

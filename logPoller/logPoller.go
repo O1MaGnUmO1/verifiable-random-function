@@ -3,10 +3,7 @@ package logpoller
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"math/big"
 	"os"
 	"strings"
@@ -22,6 +19,7 @@ import (
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/sirupsen/logrus"
@@ -49,19 +47,58 @@ type LogPoller struct {
 	coord           coordinator.Coordinator
 	contractAddress common.Address
 	eventSignature  []common.Hash
-	lastBlockNumber *big.Int
-	unfulfilled     map[string]*coordinator.CoordinatorRandomWordsRequested
-	processed       map[string]bool
-	replayFromBlock *big.Int // Block number from which to start replaying logs
+	LastBlockNumber uint64
+	Unfulfilled     map[string]*coordinator.CoordinatorRandomWordsRequested
+	Processed       map[string]bool
+	rw              sync.RWMutex
+	wg              sync.WaitGroup
 	logger          *logrus.Logger
-	subscribed      bool
-	sub             ethereum.Subscription
-	m               sync.Mutex
-	headers         chan *types.Header
+	Mu              sync.Mutex
+	nonceMap        map[common.Address]uint64
+	nonceMut        sync.Mutex
 }
 
 type LogState struct {
 	LastProcessedBlock *big.Int `json:"last_processed_block"`
+}
+
+func (lp *LogPoller) getFromCache(key string) (*coordinator.CoordinatorRandomWordsRequested, bool) {
+	lp.Mu.Lock()
+	defer lp.Mu.Unlock()
+	value, ok := lp.Unfulfilled[key]
+	return value, ok
+}
+
+func (lp *LogPoller) addToCache(key string, value *coordinator.CoordinatorRandomWordsRequested) {
+	lp.Mu.Lock()
+	defer lp.Mu.Unlock()
+	lp.Unfulfilled[key] = value
+}
+
+func (lp *LogPoller) deleteFromCache(key string) {
+	lp.Mu.Lock()
+	defer lp.Mu.Unlock()
+	_, ok := lp.Unfulfilled[key]
+	if ok {
+		delete(lp.Unfulfilled, key)
+	}
+}
+
+func (lp *LogPoller) setRequestProcessed(key string) {
+	lp.Mu.Lock()
+	defer lp.Mu.Unlock()
+	lp.Processed[key] = true
+}
+
+func (lp *LogPoller) isProcessed(key string) bool {
+	lp.Mu.Lock()
+	defer lp.Mu.Unlock()
+	if processed, ok := lp.Processed[key]; ok {
+		if processed {
+			return true
+		}
+	}
+	return false
 }
 
 // NewLogPoller creates a new instance of LogPoller
@@ -92,82 +129,27 @@ func NewLogPoller(client *client.Client, contractAddress common.Address, replayF
 		client:          client,
 		contractAddress: contractAddress,
 		eventSignature:  []common.Hash{eventSignature, sig1},
-		replayFromBlock: replayFromBlock,
-		unfulfilled:     make(map[string]*coordinator.CoordinatorRandomWordsRequested),
+		Unfulfilled:     make(map[string]*coordinator.CoordinatorRandomWordsRequested),
 		logger:          logger,
 		coord:           *coord,
-		processed:       make(map[string]bool),
+		Processed:       make(map[string]bool),
 		wallet_service:  &wallet_service,
 		vrf_service:     vrf_service,
-		headers:         make(chan *types.Header),
+		Mu:              sync.Mutex{},
+		rw:              sync.RWMutex{},
+		wg:              sync.WaitGroup{},
+		nonceMap:        make(map[common.Address]uint64),
+		nonceMut:        sync.Mutex{},
 	}, nil
 }
 
-// Start starts the log polling process
-func (lp *LogPoller) Start(ctx context.Context) error {
-	// go lp.wallet_service.MonitorBalanceChanges()
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		// case newBalance := <-lp.wallet_service.BalanceCh:
-		// 	logrus.WithFields(logrus.Fields{
-		// 		"Previous Balance": wallet_service.WeiToETH((newBalance.OldBalance)) + "FTN",
-		// 		"Current Balance":  wallet_service.WeiToETH(newBalance.NewBalance) + "FTN",
-		// 		"Amount":           wallet_service.WeiToETH(newBalance.NewBalance.Sub(newBalance.NewBalance, newBalance.OldBalance)) + "FTN",
-		// 	}).Info("Got Deposit")
-		default:
-			err := lp.pollLogs()
-			if err != nil {
-				log.Printf("Error polling logs: %v", err)
-				// backoffDuration := time.Duration(retries) * time.Second
-				// log.Printf("Retrying after %v", backoffDuration)
-				time.Sleep(1 * time.Second)
-			} else {
-				// lp.logger.WithFields(logrus.Fields{
-				// 	"Timestamp": time.Now().UTC(),
-				// 	"Message":   "No New Logs to Read, Restarting ...",
-				// }).Info("No New Logs")
-				continue // Reset retry count on successful poll
-			}
-		}
-	}
-}
-
 // pollLogs polls Ethereum logs
-func (lp *LogPoller) pollLogs() error {
-	var fromBlock *big.Int
-
-	// Determine the block to start polling from
-	if lp.lastBlockNumber == nil || lp.replayFromBlock != nil {
-		if lp.replayFromBlock != nil {
-			lp.replayFromBlock = nil // Reset replayFromBlock after using it
-		} else {
-			latestBlockNumber, err := lp.client.GetLatestBlockNumber()
-			if err != nil {
-				return err
-			}
-			fromBlock = lp.getLastProcessedBlock()
-			if fromBlock.Cmp(new(big.Int).SetUint64(latestBlockNumber)) >= 0 {
-				// Last processed block is already equal to or ahead of the latest block,
-				// no need to poll logs
-				return nil
-			}
-		}
-	}
-
-	latestBlockNumber, err := lp.client.GetLatestBlockNumber()
-	if err != nil {
-		return err
-	}
-
-	toBlock := latestBlockNumber
-
+func (lp *LogPoller) PollLogs() error {
 	query := ethereum.FilterQuery{
 		Addresses: []common.Address{lp.contractAddress},
 		Topics:    [][]common.Hash{lp.eventSignature},
-		FromBlock: new(big.Int).SetUint64(latestBlockNumber - uint64(200)),
-		ToBlock:   new(big.Int).SetUint64(toBlock),
+		FromBlock: new(big.Int).SetUint64(lp.GetLatestBlockNumber() - uint64(200)),
+		ToBlock:   new(big.Int).SetUint64(lp.GetLatestBlockNumber()),
 	}
 
 	logs, err := lp.client.FilterLogs(context.Background(), query)
@@ -192,10 +174,6 @@ func (lp *LogPoller) pollLogs() error {
 			continue
 		}
 
-		latestBlockNumber, err = lp.client.GetLatestBlockNumber()
-		if err != nil {
-			return fmt.Errorf("failed to load last block %v", err)
-		}
 		com, err := lp.coord.GetCommitment(nil, req.RequestId)
 		if err != nil {
 			return fmt.Errorf("failed to get commitment with request ID : %s Err: %v", common.BigToHash(req.RequestId).Hex(), err)
@@ -207,97 +185,70 @@ func (lp *LogPoller) pollLogs() error {
 			// fmt.Println()
 			continue
 		}
-		lp.m.Lock()
 		// Check if the request is already in unfulfilled map
-		if !lp.processed[req.RequestId.String()] {
-			if _, exists := lp.unfulfilled[req.RequestId.String()]; !exists {
-				lp.unfulfilled[req.RequestId.String()] = req
+		if !lp.isProcessed(req.RequestId.String()) {
+			if _, ok := lp.getFromCache(req.RequestId.String()); !ok {
+				lp.addToCache(req.RequestId.String(), req)
 			}
-			lp.m.Unlock()
 		}
 	}
-
-	// Start WaitForConfirmations in a separate goroutine
-	done := make(chan struct{})
-	go func() {
-		defer close(done)
-		if err := lp.WaitForConfirmations(done); err != nil {
-			log.Printf("Error in WaitForConfirmations: %v", err)
-		}
-	}()
-
-	if err := lp.setLastProcessedBlock(new(big.Int).SetUint64(latestBlockNumber)); err != nil {
-		fmt.Printf("failed to set last processed block %v", err)
-		return err
-	}
-
+	lp.WaitForConfirmations()
 	return nil
 }
 
-func (lp *LogPoller) WaitForConfirmations(done chan struct{}) error {
-	if !lp.subscribed {
-		subs, err := lp.client.EthClient.SubscribeNewHead(context.Background(), lp.headers)
-		if err != nil {
-			return err
-		}
-		lp.sub = subs
-		lp.subscribed = true
+func (lp *LogPoller) WaitForConfirmations() {
+	lp.Mu.Lock()
+	requests := make(map[string]*coordinator.CoordinatorRandomWordsRequested, len(lp.Unfulfilled))
+	for id, req := range lp.Unfulfilled {
+		requests[id] = req
 	}
-
-	for {
-		select {
-		case <-lp.sub.Err():
-			return fmt.Errorf("failed to subscribe")
-		case header := <-lp.headers:
-			lp.logger.WithFields(logrus.Fields{
-				"Timestamp":   time.Now().UTC(),
-				"Head Number": header.Number,
-			}).Infoln("Received new head")
-
-			if len(lp.unfulfilled) == 0 {
-				lp.logger.WithFields(logrus.Fields{
-					"Timestamp": time.Now().UTC(),
-				}).Infoln("No pending VRF requests")
-				return nil
-			}
-
-			// Process each request in a separate goroutine
-			for id, req := range lp.unfulfilled {
-				lp.processRequest(id, req, header.Number.Uint64())
-			}
-		}
-	}
-}
-
-func (lp *LogPoller) processRequest(id string, req *coordinator.CoordinatorRandomWordsRequested, latestBlockNumber uint64) {
-	lp.logger.WithFields(logrus.Fields{
-		"Timestamp":          time.Now().UTC(),
-		"KeyHash":            common.BytesToHash(req.KeyHash[:]),
-		"Request ID":         common.BytesToHash(req.RequestId.Bytes()),
-		"Callback Gas Limit": req.CallbackGasLimit,
-		"Min Incoming Confs": req.MinimumRequestConfirmations,
-		"Num Words":          req.NumWords,
-		"Sub ID":             req.SubId,
-		"Sender":             req.Sender.Hex(),
-	}).Info("Random Words Requested")
-
-	lp.m.Lock()
-	defer lp.m.Unlock()
-
-	if _, ok := lp.unfulfilled[id]; ok {
-		delete(lp.unfulfilled, id)
+	lp.Mu.Unlock()
+	for id, req := range requests {
+		lp.logger.WithFields(logrus.Fields{
+			"Timestamp":          time.Now().UTC(),
+			"KeyHash":            common.BytesToHash(req.KeyHash[:]),
+			"Request ID":         common.BytesToHash(req.RequestId.Bytes()),
+			"Callback Gas Limit": req.CallbackGasLimit,
+			"Min Incoming Confs": req.MinimumRequestConfirmations,
+			"Num Words":          req.NumWords,
+			"Sub ID":             req.SubId,
+			"Sender":             req.Sender.Hex(),
+		}).Info("Random Words Requested")
+		// Increment WaitGroup counter
+		lp.wg.Add(1)
+		// Start a goroutine for each request
 		go func(id string, req *coordinator.CoordinatorRandomWordsRequested) {
-			if latestBlockNumber-req.Raw.BlockNumber >= uint64(req.MinimumRequestConfirmations) {
-				if err := lp.decodeLog(req, lp.vrf_service.GetVrfKey()); err != nil {
-					lp.logger.WithError(err).Error("Failed to decode log")
-				}
-				lp.processed[id] = true
-				return
-			} else {
-				fmt.Printf("Waiting for %d confirmations. Current block: %d\n Request block: %d\n", req.MinimumRequestConfirmations, latestBlockNumber, req.Raw.BlockNumber)
-			}
+			defer lp.wg.Done() // Decrement WaitGroup counter when goroutine finishes
+			lp.ProcessRequest(id, req, lp.GetLatestBlockNumber())
 		}(id, req)
 	}
+
+	// Wait for all goroutines to finish
+	lp.wg.Wait()
+}
+
+func (lp *LogPoller) ProcessRequest(id string, req *coordinator.CoordinatorRandomWordsRequested, latestBlockNumber uint64) {
+	if lp.isProcessed(id) {
+		return
+	}
+	lp.deleteFromCache(id)
+	if latestBlockNumber-req.Raw.BlockNumber >= uint64(req.MinimumRequestConfirmations) {
+		if err := lp.decodeLog(req, lp.vrf_service.GetVrfKey()); err != nil {
+			lp.logger.Errorf("Failed to decode log %v", err)
+			lp.setRequestProcessed(id)
+			return
+		}
+		lp.logger.WithFields(logrus.Fields{
+			"min incoming confirmations": req.MinimumRequestConfirmations,
+			"requestId":                  common.BytesToHash(req.RequestId.Bytes()),
+		}).Info("finished handling request")
+		lp.setRequestProcessed(id)
+
+		return
+	} // else {
+	// 	// fmt.Printf("Waiting for %d confirmations. Current block: %d\n Request block: %d\n", req.MinimumRequestConfirmations, latestBlockNumber, req.Raw.BlockNumber)
+	// }
+
 }
 
 func (lp *LogPoller) decodeLog(req *coordinator.CoordinatorRandomWordsRequested, key vrfkey.KeyV2) error {
@@ -341,33 +292,43 @@ func (lp *LogPoller) decodeLog(req *coordinator.CoordinatorRandomWordsRequested,
 	if err != nil {
 		return fmt.Errorf("failed to pack abi %v", err)
 	}
-	msg := ethereum.CallMsg{
-		From: lp.wallet_service.Key.Address,
-		To:   &lp.contractAddress,
-		Data: b,
-	}
+	// msg := ethereum.CallMsg{
+	// 	From: lp.wallet_service.Key.Address,
+	// 	To:   &lp.contractAddress,
+	// 	Data: b,
+	// }
 
-	gas, err := lp.client.EthClient.EstimateGas(context.Background(), msg)
-	if err != nil {
-		fmt.Printf("failed to estimate gas %v", err)
-		return err
-	}
+	// gas, err := lp.client.EthClient.EstimateGas(context.Background(), msg)
+	// if err != nil {
+	// 	fmt.Printf("failed to estimate gas %v", err)
+	// 	return err
+	// }
+
+	// increased := float64(gas) * 1.1
+
+	gas := uint64(1000000)
+
 	lp.logger.WithFields(logrus.Fields{
 		"From":      lp.wallet_service.Key.Address,
 		"To":        lp.contractAddress,
 		"Gas Limit": gas,
+		// "Increased by 1.1": uint64(increased),
 	}).Info("Estimate Gas")
-	nonce, err := lp.client.EthClient.PendingNonceAt(context.Background(), lp.wallet_service.Key.Address)
+
+	nonce, err := lp.GetNonce(lp.wallet_service.Key.Address)
 	if err != nil {
 		return fmt.Errorf("failed to get nonce %v", err)
 	}
 
 	chainId, _ := new(big.Int).SetString("4090", 10)
-	gasPrice, err := lp.client.EthClient.SuggestGasPrice(context.Background())
-	if err != nil {
-		return fmt.Errorf("failed to get gas price %v", err)
-	}
+	// gasPrice, err := lp.client.EthClient.SuggestGasPrice(context.Background())
+	// if err != nil {
+	// 	return fmt.Errorf("failed to get gas price %v", err)
+	// }
+
+	gasPrice := big.NewInt(100)
 	tx := types.NewTransaction(nonce, lp.contractAddress, big.NewInt(0), gas, gasPrice, b)
+
 	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainId), lp.wallet_service.Key.ToEcdsaPrivKey())
 	if err != nil {
 		return fmt.Errorf("failed to sign tx %v", err)
@@ -381,48 +342,52 @@ func (lp *LogPoller) decodeLog(req *coordinator.CoordinatorRandomWordsRequested,
 		"To":    lp.contractAddress,
 		"Nonce": nonce,
 		"Data":  tx.Data(),
-	}).Info("Sending transaction")
+	}).Infof("Sending transaction to request ID %s", common.BytesToHash(req.RequestId.Bytes()))
 
-	// receipt, err := bind.WaitMined(context.Background(), lp.client.EthClient, tx)
-	// if err != nil {
-	// 	return fmt.Errorf("failed to mine transaction %v", err)
-	// }
-	// lp.logger.WithFields(logrus.Fields{
-	// 	"Receipt": receipt,
-	// }).Info("Transaction sent")
+	receipt, err := bind.WaitMined(context.Background(), lp.client.EthClient, signedTx)
+	if err != nil {
+		logrus.Errorf("failed to mine tx %v", err)
+		return err
+	}
+	lp.logger.WithFields(logrus.Fields{
+		"Receipt": receipt,
+	}).Info("Transaction sent")
 
 	return nil
 }
 
 // getLastProcessedBlock returns the last processed block number
-func (lp *LogPoller) getLastProcessedBlock() *big.Int {
-	// Load the last processed block number from a file
-	state := &LogState{}
-	data, err := ioutil.ReadFile("log_state.json")
-	if err != nil {
-		return nil // Error reading file, return nil
-	}
-	err = json.Unmarshal(data, state)
-	if err != nil {
-		return nil // Error unmarshalling JSON, return nil
-	}
-	return state.LastProcessedBlock
+func (lp *LogPoller) GetLatestBlockNumber() uint64 {
+	return lp.LastBlockNumber
 }
 
 // setLastProcessedBlock sets the last processed block number
-func (lp *LogPoller) setLastProcessedBlock(blockNumber *big.Int) error {
-	// Serialize the block number to JSON
-	state := &LogState{
-		LastProcessedBlock: blockNumber,
+func (lp *LogPoller) SetLatestBlockNumber(blockNumber uint64) {
+	lp.Mu.Lock()
+	defer lp.Mu.Unlock()
+	lp.LastBlockNumber = blockNumber
+}
+
+// GetNonce fetches the next available nonce for the given account.
+func (lp *LogPoller) GetNonce(account common.Address) (uint64, error) {
+	lp.nonceMut.Lock()
+	defer lp.nonceMut.Unlock()
+
+	// Check if we have the nonce stored for the account
+	if nonce, ok := lp.nonceMap[account]; ok {
+		// Increment and update the nonce for the account
+		lp.nonceMap[account] = nonce + 1
+		return nonce, nil
 	}
-	data, err := json.Marshal(state)
+
+	// Fetch the current nonce from the network
+	currentNonce, err := lp.client.EthClient.PendingNonceAt(context.Background(), account)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	// Write the serialized JSON to a file
-	err = ioutil.WriteFile("log_state.json", data, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
+
+	// Store the fetched nonce
+	lp.nonceMap[account] = currentNonce + 1
+
+	return currentNonce, nil
 }
