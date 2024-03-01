@@ -41,16 +41,16 @@ func (f *CustomFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 
 // LogPoller represents an Ethereum log poller
 type LogPoller struct {
-	vrf_service     vrf_service.VRFService
+	vrf_service     *vrf_service.VRFService
 	wallet_service  *wallet_service.WalletService
 	client          *client.Client
 	coord           coordinator.Coordinator
 	contractAddress common.Address
 	eventSignature  []common.Hash
 	LastBlockNumber uint64
+	ReplayFromBlock uint64
 	Unfulfilled     map[string]*coordinator.CoordinatorRandomWordsRequested
 	Processed       map[string]bool
-	rw              sync.RWMutex
 	wg              sync.WaitGroup
 	logger          *logrus.Logger
 	Mu              sync.Mutex
@@ -102,7 +102,7 @@ func (lp *LogPoller) isProcessed(key string) bool {
 }
 
 // NewLogPoller creates a new instance of LogPoller
-func NewLogPoller(client *client.Client, contractAddress common.Address, replayFromBlock *big.Int, wallet_service wallet_service.WalletService, vrf_service vrf_service.VRFService) (*LogPoller, error) {
+func NewLogPoller(client *client.Client, contractAddress common.Address, replayFromBlock uint64, wallet_service *wallet_service.WalletService, vrf_service *vrf_service.VRFService) (*LogPoller, error) {
 	parsedABI, err := abi.JSON(strings.NewReader(coordinator.CoordinatorABI))
 	if err != nil {
 		return nil, err
@@ -116,27 +116,25 @@ func NewLogPoller(client *client.Client, contractAddress common.Address, replayF
 	if eventSignature == (common.Hash{}) {
 		return nil, fmt.Errorf("event 'CoordinatorRandomWordsRequested' not found in contract ABI")
 	}
-	sig1 := parsedABI.Events["RandomWordsFulfilled"].ID
-	if eventSignature == (common.Hash{}) {
-		return nil, fmt.Errorf("event 'CoordinatorRandomWordsRequested' not found in contract ABI")
-	}
 
 	logger := logrus.New()
 	logger.SetOutput(os.Stdout)
 	logger.SetFormatter(&CustomFormatter{})
 
+	logger.Info("Starting log poller ...")
+	time.Sleep(1 * time.Second)
+
 	return &LogPoller{
 		client:          client,
 		contractAddress: contractAddress,
-		eventSignature:  []common.Hash{eventSignature, sig1},
+		eventSignature:  []common.Hash{eventSignature},
 		Unfulfilled:     make(map[string]*coordinator.CoordinatorRandomWordsRequested),
 		logger:          logger,
 		coord:           *coord,
 		Processed:       make(map[string]bool),
-		wallet_service:  &wallet_service,
+		ReplayFromBlock: replayFromBlock,
+		wallet_service:  wallet_service,
 		vrf_service:     vrf_service,
-		Mu:              sync.Mutex{},
-		rw:              sync.RWMutex{},
 		wg:              sync.WaitGroup{},
 		nonceMap:        make(map[common.Address]uint64),
 		nonceMut:        sync.Mutex{},
@@ -148,18 +146,19 @@ func (lp *LogPoller) PollLogs() error {
 	query := ethereum.FilterQuery{
 		Addresses: []common.Address{lp.contractAddress},
 		Topics:    [][]common.Hash{lp.eventSignature},
-		FromBlock: new(big.Int).SetUint64(lp.GetLatestBlockNumber() - uint64(200)),
+		FromBlock: new(big.Int).SetUint64(lp.ReplayFromBlock),
 		ToBlock:   new(big.Int).SetUint64(lp.GetLatestBlockNumber()),
 	}
 
 	logs, err := lp.client.FilterLogs(context.Background(), query)
 	if err != nil {
-		return err
+		errorMsg := fmt.Sprintf("error filter logs reason : %s", err)
+		lp.logger.Errorf(errorMsg)
+		return fmt.Errorf(errorMsg)
 	}
 	for _, log := range logs {
 		req, err := lp.coord.ParseRandomWordsRequested(log)
 		if err != nil {
-			// fmt.Printf("failed to parse request %v", err)
 			continue
 		}
 
@@ -179,10 +178,6 @@ func (lp *LogPoller) PollLogs() error {
 			return fmt.Errorf("failed to get commitment with request ID : %s Err: %v", common.BigToHash(req.RequestId).Hex(), err)
 		}
 		if utils.IsAllZeros(com) {
-			// lp.logger.WithFields(logrus.Fields{
-			// 	"Request ID": common.BigToHash(req.RequestId).Hex(),
-			// }).Info("Received already fulfilled request")
-			// fmt.Println()
 			continue
 		}
 		// Check if the request is already in unfulfilled map
@@ -192,11 +187,11 @@ func (lp *LogPoller) PollLogs() error {
 			}
 		}
 	}
-	lp.WaitForConfirmations()
+	lp.processPendingRequests()
 	return nil
 }
 
-func (lp *LogPoller) WaitForConfirmations() {
+func (lp *LogPoller) processPendingRequests() {
 	lp.Mu.Lock()
 	requests := make(map[string]*coordinator.CoordinatorRandomWordsRequested, len(lp.Unfulfilled))
 	for id, req := range lp.Unfulfilled {
@@ -219,7 +214,7 @@ func (lp *LogPoller) WaitForConfirmations() {
 		// Start a goroutine for each request
 		go func(id string, req *coordinator.CoordinatorRandomWordsRequested) {
 			defer lp.wg.Done() // Decrement WaitGroup counter when goroutine finishes
-			lp.ProcessRequest(id, req, lp.GetLatestBlockNumber())
+			lp.waitForConfirmations(id, req, lp.GetLatestBlockNumber())
 		}(id, req)
 	}
 
@@ -227,15 +222,15 @@ func (lp *LogPoller) WaitForConfirmations() {
 	lp.wg.Wait()
 }
 
-func (lp *LogPoller) ProcessRequest(id string, req *coordinator.CoordinatorRandomWordsRequested, latestBlockNumber uint64) {
+func (lp *LogPoller) waitForConfirmations(id string, req *coordinator.CoordinatorRandomWordsRequested, latestBlockNumber uint64) {
 	if lp.isProcessed(id) {
 		return
 	}
 	lp.deleteFromCache(id)
 	if latestBlockNumber-req.Raw.BlockNumber >= uint64(req.MinimumRequestConfirmations) {
-		if err := lp.decodeLog(req, lp.vrf_service.GetVrfKey()); err != nil {
+		if err := lp.processTransaction(req, lp.vrf_service.GetVrfKey()); err != nil {
 			lp.logger.Errorf("Failed to decode log %v", err)
-			lp.setRequestProcessed(id)
+			// lp.setRequestProcessed(id)
 			return
 		}
 		lp.logger.WithFields(logrus.Fields{
@@ -245,13 +240,31 @@ func (lp *LogPoller) ProcessRequest(id string, req *coordinator.CoordinatorRando
 		lp.setRequestProcessed(id)
 
 		return
-	} // else {
-	// 	// fmt.Printf("Waiting for %d confirmations. Current block: %d\n Request block: %d\n", req.MinimumRequestConfirmations, latestBlockNumber, req.Raw.BlockNumber)
-	// }
-
+	}
 }
 
-func (lp *LogPoller) decodeLog(req *coordinator.CoordinatorRandomWordsRequested, key vrfkey.KeyV2) error {
+func (lp *LogPoller) processTransaction(req *coordinator.CoordinatorRandomWordsRequested, key vrfkey.KeyV2) error {
+	sub, err := lp.coord.GetSubscription(&bind.CallOpts{
+		Context: context.Background(),
+	}, req.SubId)
+
+	if err != nil {
+		errorMsg := fmt.Sprintf("Subscription is not active SubID %x", req.SubId)
+		lp.logger.Errorf(errorMsg)
+		lp.setRequestProcessed(req.RequestId.String())
+		return fmt.Errorf(errorMsg)
+	}
+
+	feeTier, err := lp.coord.GetFeeTier(&bind.CallOpts{
+		Context: context.Background(),
+	}, sub.ReqCount)
+	if err != nil {
+		return fmt.Errorf("failed to get fee tier %v", err)
+	}
+
+	feeMul := new(big.Int).SetUint64(1000000000000)
+	multiplied := new(big.Int).Mul(feeMul, new(big.Int).SetUint64(uint64(feeTier)))
+
 	preSeed, err := proof.BigToSeed(req.PreSeed)
 	if err != nil {
 		return fmt.Errorf("failed to get preseed %v", err)
@@ -292,21 +305,32 @@ func (lp *LogPoller) decodeLog(req *coordinator.CoordinatorRandomWordsRequested,
 	if err != nil {
 		return fmt.Errorf("failed to pack abi %v", err)
 	}
-	// msg := ethereum.CallMsg{
-	// 	From: lp.wallet_service.Key.Address,
-	// 	To:   &lp.contractAddress,
-	// 	Data: b,
-	// }
 
-	// gas, err := lp.client.EthClient.EstimateGas(context.Background(), msg)
-	// if err != nil {
-	// 	fmt.Printf("failed to estimate gas %v", err)
-	// 	return err
-	// }
-
+	gasPrice := big.NewInt(100)
+	gasLimit := big.NewInt(3000000)
 	// increased := float64(gas) * 1.1
+	finalGas := new(big.Int).Mul(gasLimit, gasPrice)
+	// gas := uint64(1000000)
+	finalGasPrice := new(big.Int).Add(finalGas, multiplied)
+	if sub.Balance.Cmp(finalGasPrice) == -1 {
+		lp.logger.WithFields(logrus.Fields{
+			"Sub Balance":    wallet_service.WeiToETH(sub.Balance) + "FTN",
+			"Estimated Cost": wallet_service.WeiToETH(finalGasPrice) + "FTN",
+		}).Error("failed to process transaction Reason is : Insufficient Balance")
+		return fmt.Errorf("insufficient balance error")
+	}
 
-	gas := uint64(1000000)
+	msg := ethereum.CallMsg{
+		From: lp.wallet_service.Key.Address,
+		To:   &lp.contractAddress,
+		Data: b,
+	}
+
+	gas, err := lp.client.EthClient.EstimateGas(context.Background(), msg)
+	if err != nil {
+		fmt.Printf("failed to estimate gas %v", err)
+		return err
+	}
 
 	lp.logger.WithFields(logrus.Fields{
 		"From":      lp.wallet_service.Key.Address,
@@ -326,7 +350,6 @@ func (lp *LogPoller) decodeLog(req *coordinator.CoordinatorRandomWordsRequested,
 	// 	return fmt.Errorf("failed to get gas price %v", err)
 	// }
 
-	gasPrice := big.NewInt(100)
 	tx := types.NewTransaction(nonce, lp.contractAddress, big.NewInt(0), gas, gasPrice, b)
 
 	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainId), lp.wallet_service.Key.ToEcdsaPrivKey())
@@ -334,7 +357,7 @@ func (lp *LogPoller) decodeLog(req *coordinator.CoordinatorRandomWordsRequested,
 		return fmt.Errorf("failed to sign tx %v", err)
 	}
 	if err := lp.client.EthClient.SendTransaction(context.Background(), signedTx); err != nil {
-		return fmt.Errorf("faield to send tx %v", err)
+		return fmt.Errorf("failed to send tx %v", err)
 	}
 
 	lp.logger.WithFields(logrus.Fields{
@@ -342,17 +365,25 @@ func (lp *LogPoller) decodeLog(req *coordinator.CoordinatorRandomWordsRequested,
 		"To":    lp.contractAddress,
 		"Nonce": nonce,
 		"Data":  tx.Data(),
-	}).Infof("Sending transaction to request ID %s", common.BytesToHash(req.RequestId.Bytes()))
+	}).Infof("Trying to send transaction to request ID %s", common.BytesToHash(req.RequestId.Bytes()))
 
 	receipt, err := bind.WaitMined(context.Background(), lp.client.EthClient, signedTx)
 	if err != nil {
 		logrus.Errorf("failed to mine tx %v", err)
 		return err
 	}
+
 	lp.logger.WithFields(logrus.Fields{
 		"Receipt": receipt,
-	}).Info("Transaction sent")
+	}).Infof("Transaction Receipt %v", receipt)
 
+	if receipt.Status == types.ReceiptStatusFailed {
+		logrus.WithFields(logrus.Fields{
+			"Tx":     tx,
+			"Status": receipt.Status,
+		}).Error("failed to process transaction")
+		return fmt.Errorf("failed to process transaction")
+	}
 	return nil
 }
 

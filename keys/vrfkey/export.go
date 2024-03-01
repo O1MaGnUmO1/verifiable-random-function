@@ -3,7 +3,9 @@ package vrfkey
 import (
 	"crypto/ecdsa"
 	"encoding/json"
+	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/google/uuid"
@@ -87,11 +89,26 @@ func adulteratedPassword(password string) string {
 }
 
 func GetKeyIfEnvSet() (KeyV2, error) {
-	if (os.Getenv("EC_VRF_KEY_JSON_PATH")) != "" && os.Getenv("EC_VRF_KEY_PASSWORD") != "" {
-		jsonData, err := os.ReadFile(os.Getenv("EC_VRF_KEY_JSON_PATH"))
-		if err != nil {
-			logrus.Errorf("failed to read file %v", err)
-			return KeyV2{}, err
+	var jsonData []byte
+	currentWd, err := os.Getwd()
+	if err != nil {
+		logrus.Errorf("failed to get current working directory %v", err)
+		return KeyV2{}, err
+	}
+	keyFilePath := filepath.Join(currentWd, "/vrf_key.json")
+	if (utils.FileExists(keyFilePath) || os.Getenv("EC_VRF_KEY_JSON_PATH") != "") && os.Getenv("EC_VRF_KEY_PASSWORD") != "" {
+		if os.Getenv("EC_VRF_KEY_JSON_PATH") != "" {
+			jsonData, err = os.ReadFile(os.Getenv("EC_VRF_KEY_JSON_PATH"))
+			if err != nil {
+				logrus.Errorf("failed to read file %v", err)
+				return KeyV2{}, err
+			}
+		} else {
+			jsonData, err = os.ReadFile(keyFilePath)
+			if err != nil {
+				logrus.Errorf("failed to read file %v", err)
+				return KeyV2{}, err
+			}
 		}
 		key, err := FromEncryptedJSON(jsonData, os.Getenv("EC_VRF_KEY_PASSWORD"))
 		if err != nil {
@@ -100,5 +117,7 @@ func GetKeyIfEnvSet() (KeyV2, error) {
 		}
 		return key, nil
 	}
-	return KeyV2{}, nil
+	errorMsg := "EC_FTN_KEY_PASSWORD is not set, if you want to save your keys please set it and re-run the program"
+	logrus.Error(errorMsg)
+	return KeyV2{}, fmt.Errorf(errorMsg)
 }

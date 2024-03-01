@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 	"vrf/client"
 	logpoller "vrf/logPoller"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/sirupsen/logrus"
 )
 
@@ -49,55 +51,76 @@ func NewHeadTracker(client *client.Client, logPoller *logpoller.LogPoller) *Head
 	}
 }
 
-// Start starts the head tracking process
+// Start starts the head tracking process with enhanced error handling
 func (ht *HeadTracker) Start(ctx context.Context) error {
-	var subs ethereum.Subscription
-	var err error
 	retryInterval := time.Second * 5 // Retry every 5 seconds
-	maxRetries := 5                  // Maximum number of retries before failing
-	retries := 0
-
-	for {
-		// Attempt to subscribe to new heads
-		subs, err = ht.client.EthClient.SubscribeNewHead(ctx, ht.headers)
-		if err != nil {
-			ht.logger.Errorf("Failed to subscribe to heads on blockchain: %v", err)
-			retries++
-			if retries >= maxRetries {
-				return fmt.Errorf("exceeded max retries for head subscription: %v", err)
-			}
-			ht.logger.Infof("Retrying subscription in %v...", retryInterval)
-			select {
-			case <-time.After(retryInterval):
-				// Retry after the interval
-				continue
-			case <-ctx.Done():
-				// Context cancelled, stop retrying
-				return ctx.Err()
-			}
-		}
-		break // Exit the loop if subscription is successful
-	}
-
-	ht.logger.Infoln("Successfully subscribed to new head")
-	ht.sub = subs
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case header := <-ht.headers:
-			ht.logger.WithFields(logrus.Fields{
-				"Timestamp":   time.Now().UTC(),
-				"Head Number": header.Number,
-			}).Infoln("Received new head")
-			ht.logPoller.SetLatestBlockNumber(header.Number.Uint64())
-			// Process requests within this head using LogPoller
-			go func() {
-				err := ht.logPoller.PollLogs()
-				if err != nil {
-					ht.logger.Errorf("Error processing requests: %v", err)
+		default:
+			if err := ht.subscribeToNewHead(ctx); err != nil {
+				ht.logger.Errorf("Failed to subscribe to new heads: %v", err)
+				// Check if the error is a connectivity issue.
+				if err == rpc.ErrClientQuit || err == rpc.ErrSubscriptionQueueOverflow {
+					// These errors indicate a problem with the Ethereum client or the subscription itself.
+					ht.logger.Infof("Retrying subscription due to Ethereum client error in %v...", retryInterval)
+					time.Sleep(retryInterval)
+					continue // Retry the subscription
+				} else {
+					// For other types of errors, consider logging and handling them as needed.
+					return fmt.Errorf("failed to subscribe to new heads with non-retryable error: %v", err)
 				}
-			}()
+			}
+			// Successfully subscribed
+			return nil
 		}
+	}
+}
+
+// subscribeToNewHead attempts to subscribe to new block headers and process them
+func (ht *HeadTracker) subscribeToNewHead(ctx context.Context) error {
+	subs, err := ht.client.EthClient.SubscribeNewHead(ctx, ht.headers)
+	if err != nil {
+		return err // Return the error to be handled by the caller
+	}
+
+	ht.logger.Infoln("Successfully subscribed to new head")
+	ht.sub = subs // Store the subscription for later use
+
+	// Process incoming block headers
+
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for {
+			select {
+			case <-ctx.Done():
+				ht.sub.Unsubscribe() // Ensure the subscription is terminated
+				return
+			case err := <-ht.sub.Err():
+				ht.logger.Errorf("Subscription error: %v", err)
+				return // Exit the goroutine if the subscription faces an error
+			case header := <-ht.headers:
+				ht.processNewHead(header) // Process each new head
+			}
+		}
+	}()
+	wg.Wait()
+	return nil
+}
+
+// processNewHead processes a new block header
+func (ht *HeadTracker) processNewHead(header *types.Header) {
+	ht.logger.WithFields(logrus.Fields{
+		"Timestamp":   time.Now().UTC(),
+		"Head Number": header.Number,
+	}).Infoln("Received new head")
+	ht.logPoller.SetLatestBlockNumber(header.Number.Uint64())
+
+	// Process requests within this head using LogPoller
+	if err := ht.logPoller.PollLogs(); err != nil {
+		ht.logger.Errorf("Error processing requests: %v", err)
 	}
 }

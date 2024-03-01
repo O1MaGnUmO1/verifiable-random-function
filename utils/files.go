@@ -12,17 +12,6 @@ import (
 	"go.uber.org/multierr"
 )
 
-// FileExists returns true if a file at the passed string exists.
-func FileExists(name string) (bool, error) {
-	if _, err := os.Stat(name); err != nil {
-		if os.IsNotExist(err) {
-			return false, nil
-		}
-		return false, errors.Wrapf(err, "failed to check if file exists %q", name)
-	}
-	return true, nil
-}
-
 // TooPermissive checks if the file has more than the allowed permissions
 func TooPermissive(fileMode, maxAllowedPerms os.FileMode) bool {
 	return fileMode&^maxAllowedPerms != 0

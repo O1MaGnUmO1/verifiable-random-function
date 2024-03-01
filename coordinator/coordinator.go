@@ -31,11 +31,11 @@ var (
 
 // VRFCoordinatorV2FeeConfig is an auto generated low-level Go binding around an user-defined struct.
 type VRFCoordinatorV2FeeConfig struct {
-	FulfillmentFlatFeeLinkPPMTier1 uint32
-	FulfillmentFlatFeeLinkPPMTier2 uint32
-	FulfillmentFlatFeeLinkPPMTier3 uint32
-	FulfillmentFlatFeeLinkPPMTier4 uint32
-	FulfillmentFlatFeeLinkPPMTier5 uint32
+	FulfillmentFlatFeeWFTNPPMTier1 uint32
+	FulfillmentFlatFeeWFTNPPMTier2 uint32
+	FulfillmentFlatFeeWFTNPPMTier3 uint32
+	FulfillmentFlatFeeWFTNPPMTier4 uint32
+	FulfillmentFlatFeeWFTNPPMTier5 uint32
 	ReqsForTier2                   *big.Int
 	ReqsForTier3                   *big.Int
 	ReqsForTier4                   *big.Int
@@ -66,7 +66,7 @@ type VRFProof struct {
 
 // CoordinatorMetaData contains all meta data concerning the Coordinator contract.
 var CoordinatorMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"link\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"linkEthFeed\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"internalBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"externalBalance\",\"type\":\"uint256\"}],\"name\":\"BalanceInvariantViolated\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint32\",\"name\":\"have\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"want\",\"type\":\"uint32\"}],\"name\":\"GasLimitTooBig\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"IncorrectCommitment\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InsufficientBalance\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"have\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"want\",\"type\":\"uint256\"}],\"name\":\"InsufficientGasForConsumer\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"blockNum\",\"type\":\"uint256\"}],\"name\":\"InvalidBlockhash\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidCalldata\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"internalType\":\"address\",\"name\":\"consumer\",\"type\":\"address\"}],\"name\":\"InvalidConsumer\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"int256\",\"name\":\"linkWei\",\"type\":\"int256\"}],\"name\":\"InvalidLinkWeiPrice\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"have\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"min\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"max\",\"type\":\"uint16\"}],\"name\":\"InvalidRequestConfirmations\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidSubscription\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"proposedOwner\",\"type\":\"address\"}],\"name\":\"MustBeRequestedOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"MustBeSubOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NoCorrespondingRequest\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"keyHash\",\"type\":\"bytes32\"}],\"name\":\"NoSuchProvingKey\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint32\",\"name\":\"have\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"want\",\"type\":\"uint32\"}],\"name\":\"NumWordsTooBig\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlyCallableFromLink\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PaymentTooLarge\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PendingRequestExists\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"keyHash\",\"type\":\"bytes32\"}],\"name\":\"ProvingKeyAlreadyRegistered\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"Reentrant\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TooManyConsumers\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"minimumRequestConfirmations\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"maxGasLimit\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"stalenessSeconds\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"gasAfterPaymentCalculation\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"fallbackWeiPerUnitLink\",\"type\":\"int256\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeLinkPPMTier1\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeLinkPPMTier2\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeLinkPPMTier3\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeLinkPPMTier4\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeLinkPPMTier5\",\"type\":\"uint32\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier2\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier3\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier4\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier5\",\"type\":\"uint24\"}],\"indexed\":false,\"internalType\":\"structVRFCoordinatorV2.FeeConfig\",\"name\":\"feeConfig\",\"type\":\"tuple\"}],\"name\":\"ConfigSet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"FundsRecovered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"OwnershipTransferRequested\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"keyHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"}],\"name\":\"ProvingKeyDeregistered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"keyHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"}],\"name\":\"ProvingKeyRegistered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"requestId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"outputSeed\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint96\",\"name\":\"payment\",\"type\":\"uint96\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"}],\"name\":\"RandomWordsFulfilled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"keyHash\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"requestId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"preSeed\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"minimumRequestConfirmations\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"callbackGasLimit\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"numWords\",\"type\":\"uint32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RandomWordsRequested\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"SubscriptionCanceled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"consumer\",\"type\":\"address\"}],\"name\":\"SubscriptionConsumerAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"consumer\",\"type\":\"address\"}],\"name\":\"SubscriptionConsumerRemoved\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"SubscriptionCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldBalance\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newBalance\",\"type\":\"uint256\"}],\"name\":\"SubscriptionFunded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"SubscriptionOwnerTransferRequested\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"SubscriptionOwnerTransferred\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"LINK\",\"outputs\":[{\"internalType\":\"contractLinkTokenInterface\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"LINK_ETH_FEED\",\"outputs\":[{\"internalType\":\"contractAggregatorV3Interface\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MAX_CONSUMERS\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MAX_NUM_WORDS\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MAX_REQUEST_CONFIRMATIONS\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"acceptOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"}],\"name\":\"acceptSubscriptionOwnerTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"internalType\":\"address\",\"name\":\"consumer\",\"type\":\"address\"}],\"name\":\"addConsumer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"cancelSubscription\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"createSubscription\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256[2]\",\"name\":\"publicProvingKey\",\"type\":\"uint256[2]\"}],\"name\":\"deregisterProvingKey\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256[2]\",\"name\":\"pk\",\"type\":\"uint256[2]\"},{\"internalType\":\"uint256[2]\",\"name\":\"gamma\",\"type\":\"uint256[2]\"},{\"internalType\":\"uint256\",\"name\":\"c\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"s\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"seed\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"uWitness\",\"type\":\"address\"},{\"internalType\":\"uint256[2]\",\"name\":\"cGammaWitness\",\"type\":\"uint256[2]\"},{\"internalType\":\"uint256[2]\",\"name\":\"sHashWitness\",\"type\":\"uint256[2]\"},{\"internalType\":\"uint256\",\"name\":\"zInv\",\"type\":\"uint256\"}],\"internalType\":\"structVRF.Proof\",\"name\":\"proof\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint64\",\"name\":\"blockNum\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"internalType\":\"uint32\",\"name\":\"callbackGasLimit\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"numWords\",\"type\":\"uint32\"},{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"internalType\":\"structVRFCoordinatorV2.RequestCommitment\",\"name\":\"rc\",\"type\":\"tuple\"}],\"name\":\"fulfillRandomWords\",\"outputs\":[{\"internalType\":\"uint96\",\"name\":\"\",\"type\":\"uint96\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"requestId\",\"type\":\"uint256\"}],\"name\":\"getCommitment\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getConfig\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"minimumRequestConfirmations\",\"type\":\"uint16\"},{\"internalType\":\"uint32\",\"name\":\"maxGasLimit\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"stalenessSeconds\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"gasAfterPaymentCalculation\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCurrentSubId\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getFallbackWeiPerUnitLink\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getFeeConfig\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeLinkPPMTier1\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeLinkPPMTier2\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeLinkPPMTier3\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeLinkPPMTier4\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeLinkPPMTier5\",\"type\":\"uint32\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier2\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier3\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier4\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier5\",\"type\":\"uint24\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"reqCount\",\"type\":\"uint64\"}],\"name\":\"getFeeTier\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getRequestConfig\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"},{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"},{\"internalType\":\"bytes32[]\",\"name\":\"\",\"type\":\"bytes32[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"}],\"name\":\"getSubscription\",\"outputs\":[{\"internalType\":\"uint96\",\"name\":\"balance\",\"type\":\"uint96\"},{\"internalType\":\"uint64\",\"name\":\"reqCount\",\"type\":\"uint64\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address[]\",\"name\":\"consumers\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTotalBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256[2]\",\"name\":\"publicKey\",\"type\":\"uint256[2]\"}],\"name\":\"hashOfKey\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"onTokenTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint96\",\"name\":\"amount\",\"type\":\"uint96\"}],\"name\":\"oracleWithdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"}],\"name\":\"ownerCancelSubscription\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"}],\"name\":\"pendingRequestExists\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"recoverFunds\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"},{\"internalType\":\"uint256[2]\",\"name\":\"publicProvingKey\",\"type\":\"uint256[2]\"}],\"name\":\"registerProvingKey\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"internalType\":\"address\",\"name\":\"consumer\",\"type\":\"address\"}],\"name\":\"removeConsumer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"keyHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"internalType\":\"uint16\",\"name\":\"requestConfirmations\",\"type\":\"uint16\"},{\"internalType\":\"uint32\",\"name\":\"callbackGasLimit\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"numWords\",\"type\":\"uint32\"}],\"name\":\"requestRandomWords\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"requestSubscriptionOwnerTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"name\":\"s_subscriptionConfigs\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"requestedOwner\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"name\":\"s_subscriptions\",\"outputs\":[{\"internalType\":\"uint96\",\"name\":\"balance\",\"type\":\"uint96\"},{\"internalType\":\"uint64\",\"name\":\"reqCount\",\"type\":\"uint64\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"minimumRequestConfirmations\",\"type\":\"uint16\"},{\"internalType\":\"uint32\",\"name\":\"maxGasLimit\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"stalenessSeconds\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"gasAfterPaymentCalculation\",\"type\":\"uint32\"},{\"internalType\":\"int256\",\"name\":\"fallbackWeiPerUnitLink\",\"type\":\"int256\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeLinkPPMTier1\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeLinkPPMTier2\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeLinkPPMTier3\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeLinkPPMTier4\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeLinkPPMTier5\",\"type\":\"uint32\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier2\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier3\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier4\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier5\",\"type\":\"uint24\"}],\"internalType\":\"structVRFCoordinatorV2.FeeConfig\",\"name\":\"feeConfig\",\"type\":\"tuple\"}],\"name\":\"setConfig\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_wFTN\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_BHS\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"internalBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"externalBalance\",\"type\":\"uint256\"}],\"name\":\"BalanceInvariantViolated\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint32\",\"name\":\"have\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"want\",\"type\":\"uint32\"}],\"name\":\"GasLimitTooBig\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"IncorrectCommitment\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InsufficientBalance\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"have\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"want\",\"type\":\"uint256\"}],\"name\":\"InsufficientGasForConsumer\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"blockNum\",\"type\":\"uint256\"}],\"name\":\"InvalidBlockhash\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidCalldata\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"internalType\":\"address\",\"name\":\"consumer\",\"type\":\"address\"}],\"name\":\"InvalidConsumer\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"have\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"min\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"max\",\"type\":\"uint16\"}],\"name\":\"InvalidRequestConfirmations\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidSubscription\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"proposedOwner\",\"type\":\"address\"}],\"name\":\"MustBeRequestedOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"MustBeSubOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NoCorrespondingRequest\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"keyHash\",\"type\":\"bytes32\"}],\"name\":\"NoSuchProvingKey\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint32\",\"name\":\"have\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"want\",\"type\":\"uint32\"}],\"name\":\"NumWordsTooBig\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlyCallableFromLink\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PaymentTooLarge\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PendingRequestExists\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"keyHash\",\"type\":\"bytes32\"}],\"name\":\"ProvingKeyAlreadyRegistered\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"Reentrant\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TooManyConsumers\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldBalance\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newBalance\",\"type\":\"uint256\"}],\"name\":\"BHSFunded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"minimumRequestConfirmations\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"maxGasLimit\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"gasAfterPaymentCalculation\",\"type\":\"uint32\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeWFTNPPMTier1\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeWFTNPPMTier2\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeWFTNPPMTier3\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeWFTNPPMTier4\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeWFTNPPMTier5\",\"type\":\"uint32\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier2\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier3\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier4\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier5\",\"type\":\"uint24\"}],\"indexed\":false,\"internalType\":\"structVRFCoordinatorV2.FeeConfig\",\"name\":\"feeConfig\",\"type\":\"tuple\"}],\"name\":\"ConfigSet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"FundsRecovered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"OwnershipTransferRequested\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"keyHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"}],\"name\":\"ProvingKeyDeregistered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"keyHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"}],\"name\":\"ProvingKeyRegistered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"requestId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"outputSeed\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"payment\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"}],\"name\":\"RandomWordsFulfilled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"keyHash\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"requestId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"preSeed\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"minimumRequestConfirmations\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"callbackGasLimit\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"numWords\",\"type\":\"uint32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RandomWordsRequested\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"reward\",\"type\":\"uint256\"}],\"name\":\"RewardSet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"SubscriptionCanceled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"consumer\",\"type\":\"address\"}],\"name\":\"SubscriptionConsumerAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"consumer\",\"type\":\"address\"}],\"name\":\"SubscriptionConsumerRemoved\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"SubscriptionCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldBalance\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newBalance\",\"type\":\"uint256\"}],\"name\":\"SubscriptionFunded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"SubscriptionOwnerTransferRequested\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"SubscriptionOwnerTransferred\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"BHS\",\"outputs\":[{\"internalType\":\"contractIBlockhashStore\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"BHSBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MAX_CONSUMERS\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MAX_NUM_WORDS\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MAX_REQUEST_CONFIRMATIONS\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"acceptOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"}],\"name\":\"acceptSubscriptionOwnerTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"internalType\":\"address\",\"name\":\"consumer\",\"type\":\"address\"}],\"name\":\"addConsumer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"cancelSubscription\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"createSubscription\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256[2]\",\"name\":\"publicProvingKey\",\"type\":\"uint256[2]\"}],\"name\":\"deregisterProvingKey\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256[2]\",\"name\":\"pk\",\"type\":\"uint256[2]\"},{\"internalType\":\"uint256[2]\",\"name\":\"gamma\",\"type\":\"uint256[2]\"},{\"internalType\":\"uint256\",\"name\":\"c\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"s\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"seed\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"uWitness\",\"type\":\"address\"},{\"internalType\":\"uint256[2]\",\"name\":\"cGammaWitness\",\"type\":\"uint256[2]\"},{\"internalType\":\"uint256[2]\",\"name\":\"sHashWitness\",\"type\":\"uint256[2]\"},{\"internalType\":\"uint256\",\"name\":\"zInv\",\"type\":\"uint256\"}],\"internalType\":\"structVRF.Proof\",\"name\":\"proof\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint64\",\"name\":\"blockNum\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"internalType\":\"uint32\",\"name\":\"callbackGasLimit\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"numWords\",\"type\":\"uint32\"},{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"internalType\":\"structVRFCoordinatorV2.RequestCommitment\",\"name\":\"rc\",\"type\":\"tuple\"}],\"name\":\"fulfillRandomWords\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"fundBHS\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"}],\"name\":\"fundSubscibtion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"requestId\",\"type\":\"uint256\"}],\"name\":\"getCommitment\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getConfig\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"minimumRequestConfirmations\",\"type\":\"uint16\"},{\"internalType\":\"uint32\",\"name\":\"maxGasLimit\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"gasAfterPaymentCalculation\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCurrentSubId\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getFeeConfig\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeWFTNPPMTier1\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeWFTNPPMTier2\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeWFTNPPMTier3\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeWFTNPPMTier4\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeWFTNPPMTier5\",\"type\":\"uint32\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier2\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier3\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier4\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier5\",\"type\":\"uint24\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reqCount\",\"type\":\"uint256\"}],\"name\":\"getFeeTier\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getRequestConfig\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"},{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"},{\"internalType\":\"bytes32[]\",\"name\":\"\",\"type\":\"bytes32[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"}],\"name\":\"getSubscription\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"balance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"reqCount\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address[]\",\"name\":\"consumers\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTotalBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256[2]\",\"name\":\"publicKey\",\"type\":\"uint256[2]\"}],\"name\":\"hashOfKey\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint96\",\"name\":\"amount\",\"type\":\"uint96\"}],\"name\":\"oracleWithdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"}],\"name\":\"ownerCancelSubscription\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"}],\"name\":\"pendingRequestExists\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"recoverFunds\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"},{\"internalType\":\"uint256[2]\",\"name\":\"publicProvingKey\",\"type\":\"uint256[2]\"}],\"name\":\"registerProvingKey\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"internalType\":\"address\",\"name\":\"consumer\",\"type\":\"address\"}],\"name\":\"removeConsumer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"keyHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"internalType\":\"uint16\",\"name\":\"requestConfirmations\",\"type\":\"uint16\"},{\"internalType\":\"uint32\",\"name\":\"callbackGasLimit\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"numWords\",\"type\":\"uint32\"}],\"name\":\"requestRandomWords\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"subId\",\"type\":\"uint64\"},{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"requestSubscriptionOwnerTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"name\":\"s_subscriptionConfigs\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"requestedOwner\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"name\":\"s_subscriptions\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"balance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"reqCount\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"minimumRequestConfirmations\",\"type\":\"uint16\"},{\"internalType\":\"uint32\",\"name\":\"maxGasLimit\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"gasAfterPaymentCalculation\",\"type\":\"uint32\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeWFTNPPMTier1\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeWFTNPPMTier2\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeWFTNPPMTier3\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeWFTNPPMTier4\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"fulfillmentFlatFeeWFTNPPMTier5\",\"type\":\"uint32\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier2\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier3\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier4\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"reqsForTier5\",\"type\":\"uint24\"}],\"internalType\":\"structVRFCoordinatorV2.FeeConfig\",\"name\":\"feeConfig\",\"type\":\"tuple\"}],\"name\":\"setConfig\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"setRewardForBHS\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"wFTN\",\"outputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
 }
 
 // CoordinatorABI is the input ABI used to generate the binding from.
@@ -215,12 +215,12 @@ func (_Coordinator *CoordinatorTransactorRaw) Transact(opts *bind.TransactOpts, 
 	return _Coordinator.Contract.contract.Transact(opts, method, params...)
 }
 
-// LINK is a free data retrieval call binding the contract method 0x1b6b6d23.
+// BHS is a free data retrieval call binding the contract method 0xf745eafb.
 //
-// Solidity: function LINK() view returns(address)
-func (_Coordinator *CoordinatorCaller) LINK(opts *bind.CallOpts) (common.Address, error) {
+// Solidity: function BHS() view returns(address)
+func (_Coordinator *CoordinatorCaller) BHS(opts *bind.CallOpts) (common.Address, error) {
 	var out []interface{}
-	err := _Coordinator.contract.Call(opts, &out, "LINK")
+	err := _Coordinator.contract.Call(opts, &out, "BHS")
 
 	if err != nil {
 		return *new(common.Address), err
@@ -232,49 +232,49 @@ func (_Coordinator *CoordinatorCaller) LINK(opts *bind.CallOpts) (common.Address
 
 }
 
-// LINK is a free data retrieval call binding the contract method 0x1b6b6d23.
+// BHS is a free data retrieval call binding the contract method 0xf745eafb.
 //
-// Solidity: function LINK() view returns(address)
-func (_Coordinator *CoordinatorSession) LINK() (common.Address, error) {
-	return _Coordinator.Contract.LINK(&_Coordinator.CallOpts)
+// Solidity: function BHS() view returns(address)
+func (_Coordinator *CoordinatorSession) BHS() (common.Address, error) {
+	return _Coordinator.Contract.BHS(&_Coordinator.CallOpts)
 }
 
-// LINK is a free data retrieval call binding the contract method 0x1b6b6d23.
+// BHS is a free data retrieval call binding the contract method 0xf745eafb.
 //
-// Solidity: function LINK() view returns(address)
-func (_Coordinator *CoordinatorCallerSession) LINK() (common.Address, error) {
-	return _Coordinator.Contract.LINK(&_Coordinator.CallOpts)
+// Solidity: function BHS() view returns(address)
+func (_Coordinator *CoordinatorCallerSession) BHS() (common.Address, error) {
+	return _Coordinator.Contract.BHS(&_Coordinator.CallOpts)
 }
 
-// LINKETHFEED is a free data retrieval call binding the contract method 0xad178361.
+// BHSBalance is a free data retrieval call binding the contract method 0x7e52a5b5.
 //
-// Solidity: function LINK_ETH_FEED() view returns(address)
-func (_Coordinator *CoordinatorCaller) LINKETHFEED(opts *bind.CallOpts) (common.Address, error) {
+// Solidity: function BHSBalance() view returns(uint256)
+func (_Coordinator *CoordinatorCaller) BHSBalance(opts *bind.CallOpts) (*big.Int, error) {
 	var out []interface{}
-	err := _Coordinator.contract.Call(opts, &out, "LINK_ETH_FEED")
+	err := _Coordinator.contract.Call(opts, &out, "BHSBalance")
 
 	if err != nil {
-		return *new(common.Address), err
+		return *new(*big.Int), err
 	}
 
-	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
 
 	return out0, err
 
 }
 
-// LINKETHFEED is a free data retrieval call binding the contract method 0xad178361.
+// BHSBalance is a free data retrieval call binding the contract method 0x7e52a5b5.
 //
-// Solidity: function LINK_ETH_FEED() view returns(address)
-func (_Coordinator *CoordinatorSession) LINKETHFEED() (common.Address, error) {
-	return _Coordinator.Contract.LINKETHFEED(&_Coordinator.CallOpts)
+// Solidity: function BHSBalance() view returns(uint256)
+func (_Coordinator *CoordinatorSession) BHSBalance() (*big.Int, error) {
+	return _Coordinator.Contract.BHSBalance(&_Coordinator.CallOpts)
 }
 
-// LINKETHFEED is a free data retrieval call binding the contract method 0xad178361.
+// BHSBalance is a free data retrieval call binding the contract method 0x7e52a5b5.
 //
-// Solidity: function LINK_ETH_FEED() view returns(address)
-func (_Coordinator *CoordinatorCallerSession) LINKETHFEED() (common.Address, error) {
-	return _Coordinator.Contract.LINKETHFEED(&_Coordinator.CallOpts)
+// Solidity: function BHSBalance() view returns(uint256)
+func (_Coordinator *CoordinatorCallerSession) BHSBalance() (*big.Int, error) {
+	return _Coordinator.Contract.BHSBalance(&_Coordinator.CallOpts)
 }
 
 // MAXCONSUMERS is a free data retrieval call binding the contract method 0x64d51a2a.
@@ -403,11 +403,10 @@ func (_Coordinator *CoordinatorCallerSession) GetCommitment(requestId *big.Int) 
 
 // GetConfig is a free data retrieval call binding the contract method 0xc3f909d4.
 //
-// Solidity: function getConfig() view returns(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 stalenessSeconds, uint32 gasAfterPaymentCalculation)
+// Solidity: function getConfig() view returns(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 gasAfterPaymentCalculation)
 func (_Coordinator *CoordinatorCaller) GetConfig(opts *bind.CallOpts) (struct {
 	MinimumRequestConfirmations uint16
 	MaxGasLimit                 uint32
-	StalenessSeconds            uint32
 	GasAfterPaymentCalculation  uint32
 }, error) {
 	var out []interface{}
@@ -416,7 +415,6 @@ func (_Coordinator *CoordinatorCaller) GetConfig(opts *bind.CallOpts) (struct {
 	outstruct := new(struct {
 		MinimumRequestConfirmations uint16
 		MaxGasLimit                 uint32
-		StalenessSeconds            uint32
 		GasAfterPaymentCalculation  uint32
 	})
 	if err != nil {
@@ -425,8 +423,7 @@ func (_Coordinator *CoordinatorCaller) GetConfig(opts *bind.CallOpts) (struct {
 
 	outstruct.MinimumRequestConfirmations = *abi.ConvertType(out[0], new(uint16)).(*uint16)
 	outstruct.MaxGasLimit = *abi.ConvertType(out[1], new(uint32)).(*uint32)
-	outstruct.StalenessSeconds = *abi.ConvertType(out[2], new(uint32)).(*uint32)
-	outstruct.GasAfterPaymentCalculation = *abi.ConvertType(out[3], new(uint32)).(*uint32)
+	outstruct.GasAfterPaymentCalculation = *abi.ConvertType(out[2], new(uint32)).(*uint32)
 
 	return *outstruct, err
 
@@ -434,11 +431,10 @@ func (_Coordinator *CoordinatorCaller) GetConfig(opts *bind.CallOpts) (struct {
 
 // GetConfig is a free data retrieval call binding the contract method 0xc3f909d4.
 //
-// Solidity: function getConfig() view returns(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 stalenessSeconds, uint32 gasAfterPaymentCalculation)
+// Solidity: function getConfig() view returns(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 gasAfterPaymentCalculation)
 func (_Coordinator *CoordinatorSession) GetConfig() (struct {
 	MinimumRequestConfirmations uint16
 	MaxGasLimit                 uint32
-	StalenessSeconds            uint32
 	GasAfterPaymentCalculation  uint32
 }, error) {
 	return _Coordinator.Contract.GetConfig(&_Coordinator.CallOpts)
@@ -446,11 +442,10 @@ func (_Coordinator *CoordinatorSession) GetConfig() (struct {
 
 // GetConfig is a free data retrieval call binding the contract method 0xc3f909d4.
 //
-// Solidity: function getConfig() view returns(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 stalenessSeconds, uint32 gasAfterPaymentCalculation)
+// Solidity: function getConfig() view returns(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 gasAfterPaymentCalculation)
 func (_Coordinator *CoordinatorCallerSession) GetConfig() (struct {
 	MinimumRequestConfirmations uint16
 	MaxGasLimit                 uint32
-	StalenessSeconds            uint32
 	GasAfterPaymentCalculation  uint32
 }, error) {
 	return _Coordinator.Contract.GetConfig(&_Coordinator.CallOpts)
@@ -487,46 +482,15 @@ func (_Coordinator *CoordinatorCallerSession) GetCurrentSubId() (uint64, error) 
 	return _Coordinator.Contract.GetCurrentSubId(&_Coordinator.CallOpts)
 }
 
-// GetFallbackWeiPerUnitLink is a free data retrieval call binding the contract method 0x356dac71.
-//
-// Solidity: function getFallbackWeiPerUnitLink() view returns(int256)
-func (_Coordinator *CoordinatorCaller) GetFallbackWeiPerUnitLink(opts *bind.CallOpts) (*big.Int, error) {
-	var out []interface{}
-	err := _Coordinator.contract.Call(opts, &out, "getFallbackWeiPerUnitLink")
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
-}
-
-// GetFallbackWeiPerUnitLink is a free data retrieval call binding the contract method 0x356dac71.
-//
-// Solidity: function getFallbackWeiPerUnitLink() view returns(int256)
-func (_Coordinator *CoordinatorSession) GetFallbackWeiPerUnitLink() (*big.Int, error) {
-	return _Coordinator.Contract.GetFallbackWeiPerUnitLink(&_Coordinator.CallOpts)
-}
-
-// GetFallbackWeiPerUnitLink is a free data retrieval call binding the contract method 0x356dac71.
-//
-// Solidity: function getFallbackWeiPerUnitLink() view returns(int256)
-func (_Coordinator *CoordinatorCallerSession) GetFallbackWeiPerUnitLink() (*big.Int, error) {
-	return _Coordinator.Contract.GetFallbackWeiPerUnitLink(&_Coordinator.CallOpts)
-}
-
 // GetFeeConfig is a free data retrieval call binding the contract method 0x5fbbc0d2.
 //
-// Solidity: function getFeeConfig() view returns(uint32 fulfillmentFlatFeeLinkPPMTier1, uint32 fulfillmentFlatFeeLinkPPMTier2, uint32 fulfillmentFlatFeeLinkPPMTier3, uint32 fulfillmentFlatFeeLinkPPMTier4, uint32 fulfillmentFlatFeeLinkPPMTier5, uint24 reqsForTier2, uint24 reqsForTier3, uint24 reqsForTier4, uint24 reqsForTier5)
+// Solidity: function getFeeConfig() view returns(uint32 fulfillmentFlatFeeWFTNPPMTier1, uint32 fulfillmentFlatFeeWFTNPPMTier2, uint32 fulfillmentFlatFeeWFTNPPMTier3, uint32 fulfillmentFlatFeeWFTNPPMTier4, uint32 fulfillmentFlatFeeWFTNPPMTier5, uint24 reqsForTier2, uint24 reqsForTier3, uint24 reqsForTier4, uint24 reqsForTier5)
 func (_Coordinator *CoordinatorCaller) GetFeeConfig(opts *bind.CallOpts) (struct {
-	FulfillmentFlatFeeLinkPPMTier1 uint32
-	FulfillmentFlatFeeLinkPPMTier2 uint32
-	FulfillmentFlatFeeLinkPPMTier3 uint32
-	FulfillmentFlatFeeLinkPPMTier4 uint32
-	FulfillmentFlatFeeLinkPPMTier5 uint32
+	FulfillmentFlatFeeWFTNPPMTier1 uint32
+	FulfillmentFlatFeeWFTNPPMTier2 uint32
+	FulfillmentFlatFeeWFTNPPMTier3 uint32
+	FulfillmentFlatFeeWFTNPPMTier4 uint32
+	FulfillmentFlatFeeWFTNPPMTier5 uint32
 	ReqsForTier2                   *big.Int
 	ReqsForTier3                   *big.Int
 	ReqsForTier4                   *big.Int
@@ -536,11 +500,11 @@ func (_Coordinator *CoordinatorCaller) GetFeeConfig(opts *bind.CallOpts) (struct
 	err := _Coordinator.contract.Call(opts, &out, "getFeeConfig")
 
 	outstruct := new(struct {
-		FulfillmentFlatFeeLinkPPMTier1 uint32
-		FulfillmentFlatFeeLinkPPMTier2 uint32
-		FulfillmentFlatFeeLinkPPMTier3 uint32
-		FulfillmentFlatFeeLinkPPMTier4 uint32
-		FulfillmentFlatFeeLinkPPMTier5 uint32
+		FulfillmentFlatFeeWFTNPPMTier1 uint32
+		FulfillmentFlatFeeWFTNPPMTier2 uint32
+		FulfillmentFlatFeeWFTNPPMTier3 uint32
+		FulfillmentFlatFeeWFTNPPMTier4 uint32
+		FulfillmentFlatFeeWFTNPPMTier5 uint32
 		ReqsForTier2                   *big.Int
 		ReqsForTier3                   *big.Int
 		ReqsForTier4                   *big.Int
@@ -550,11 +514,11 @@ func (_Coordinator *CoordinatorCaller) GetFeeConfig(opts *bind.CallOpts) (struct
 		return *outstruct, err
 	}
 
-	outstruct.FulfillmentFlatFeeLinkPPMTier1 = *abi.ConvertType(out[0], new(uint32)).(*uint32)
-	outstruct.FulfillmentFlatFeeLinkPPMTier2 = *abi.ConvertType(out[1], new(uint32)).(*uint32)
-	outstruct.FulfillmentFlatFeeLinkPPMTier3 = *abi.ConvertType(out[2], new(uint32)).(*uint32)
-	outstruct.FulfillmentFlatFeeLinkPPMTier4 = *abi.ConvertType(out[3], new(uint32)).(*uint32)
-	outstruct.FulfillmentFlatFeeLinkPPMTier5 = *abi.ConvertType(out[4], new(uint32)).(*uint32)
+	outstruct.FulfillmentFlatFeeWFTNPPMTier1 = *abi.ConvertType(out[0], new(uint32)).(*uint32)
+	outstruct.FulfillmentFlatFeeWFTNPPMTier2 = *abi.ConvertType(out[1], new(uint32)).(*uint32)
+	outstruct.FulfillmentFlatFeeWFTNPPMTier3 = *abi.ConvertType(out[2], new(uint32)).(*uint32)
+	outstruct.FulfillmentFlatFeeWFTNPPMTier4 = *abi.ConvertType(out[3], new(uint32)).(*uint32)
+	outstruct.FulfillmentFlatFeeWFTNPPMTier5 = *abi.ConvertType(out[4], new(uint32)).(*uint32)
 	outstruct.ReqsForTier2 = *abi.ConvertType(out[5], new(*big.Int)).(**big.Int)
 	outstruct.ReqsForTier3 = *abi.ConvertType(out[6], new(*big.Int)).(**big.Int)
 	outstruct.ReqsForTier4 = *abi.ConvertType(out[7], new(*big.Int)).(**big.Int)
@@ -566,13 +530,13 @@ func (_Coordinator *CoordinatorCaller) GetFeeConfig(opts *bind.CallOpts) (struct
 
 // GetFeeConfig is a free data retrieval call binding the contract method 0x5fbbc0d2.
 //
-// Solidity: function getFeeConfig() view returns(uint32 fulfillmentFlatFeeLinkPPMTier1, uint32 fulfillmentFlatFeeLinkPPMTier2, uint32 fulfillmentFlatFeeLinkPPMTier3, uint32 fulfillmentFlatFeeLinkPPMTier4, uint32 fulfillmentFlatFeeLinkPPMTier5, uint24 reqsForTier2, uint24 reqsForTier3, uint24 reqsForTier4, uint24 reqsForTier5)
+// Solidity: function getFeeConfig() view returns(uint32 fulfillmentFlatFeeWFTNPPMTier1, uint32 fulfillmentFlatFeeWFTNPPMTier2, uint32 fulfillmentFlatFeeWFTNPPMTier3, uint32 fulfillmentFlatFeeWFTNPPMTier4, uint32 fulfillmentFlatFeeWFTNPPMTier5, uint24 reqsForTier2, uint24 reqsForTier3, uint24 reqsForTier4, uint24 reqsForTier5)
 func (_Coordinator *CoordinatorSession) GetFeeConfig() (struct {
-	FulfillmentFlatFeeLinkPPMTier1 uint32
-	FulfillmentFlatFeeLinkPPMTier2 uint32
-	FulfillmentFlatFeeLinkPPMTier3 uint32
-	FulfillmentFlatFeeLinkPPMTier4 uint32
-	FulfillmentFlatFeeLinkPPMTier5 uint32
+	FulfillmentFlatFeeWFTNPPMTier1 uint32
+	FulfillmentFlatFeeWFTNPPMTier2 uint32
+	FulfillmentFlatFeeWFTNPPMTier3 uint32
+	FulfillmentFlatFeeWFTNPPMTier4 uint32
+	FulfillmentFlatFeeWFTNPPMTier5 uint32
 	ReqsForTier2                   *big.Int
 	ReqsForTier3                   *big.Int
 	ReqsForTier4                   *big.Int
@@ -583,13 +547,13 @@ func (_Coordinator *CoordinatorSession) GetFeeConfig() (struct {
 
 // GetFeeConfig is a free data retrieval call binding the contract method 0x5fbbc0d2.
 //
-// Solidity: function getFeeConfig() view returns(uint32 fulfillmentFlatFeeLinkPPMTier1, uint32 fulfillmentFlatFeeLinkPPMTier2, uint32 fulfillmentFlatFeeLinkPPMTier3, uint32 fulfillmentFlatFeeLinkPPMTier4, uint32 fulfillmentFlatFeeLinkPPMTier5, uint24 reqsForTier2, uint24 reqsForTier3, uint24 reqsForTier4, uint24 reqsForTier5)
+// Solidity: function getFeeConfig() view returns(uint32 fulfillmentFlatFeeWFTNPPMTier1, uint32 fulfillmentFlatFeeWFTNPPMTier2, uint32 fulfillmentFlatFeeWFTNPPMTier3, uint32 fulfillmentFlatFeeWFTNPPMTier4, uint32 fulfillmentFlatFeeWFTNPPMTier5, uint24 reqsForTier2, uint24 reqsForTier3, uint24 reqsForTier4, uint24 reqsForTier5)
 func (_Coordinator *CoordinatorCallerSession) GetFeeConfig() (struct {
-	FulfillmentFlatFeeLinkPPMTier1 uint32
-	FulfillmentFlatFeeLinkPPMTier2 uint32
-	FulfillmentFlatFeeLinkPPMTier3 uint32
-	FulfillmentFlatFeeLinkPPMTier4 uint32
-	FulfillmentFlatFeeLinkPPMTier5 uint32
+	FulfillmentFlatFeeWFTNPPMTier1 uint32
+	FulfillmentFlatFeeWFTNPPMTier2 uint32
+	FulfillmentFlatFeeWFTNPPMTier3 uint32
+	FulfillmentFlatFeeWFTNPPMTier4 uint32
+	FulfillmentFlatFeeWFTNPPMTier5 uint32
 	ReqsForTier2                   *big.Int
 	ReqsForTier3                   *big.Int
 	ReqsForTier4                   *big.Int
@@ -598,10 +562,10 @@ func (_Coordinator *CoordinatorCallerSession) GetFeeConfig() (struct {
 	return _Coordinator.Contract.GetFeeConfig(&_Coordinator.CallOpts)
 }
 
-// GetFeeTier is a free data retrieval call binding the contract method 0xd2f9f9a7.
+// GetFeeTier is a free data retrieval call binding the contract method 0xeccea3e2.
 //
-// Solidity: function getFeeTier(uint64 reqCount) view returns(uint32)
-func (_Coordinator *CoordinatorCaller) GetFeeTier(opts *bind.CallOpts, reqCount uint64) (uint32, error) {
+// Solidity: function getFeeTier(uint256 reqCount) view returns(uint32)
+func (_Coordinator *CoordinatorCaller) GetFeeTier(opts *bind.CallOpts, reqCount *big.Int) (uint32, error) {
 	var out []interface{}
 	err := _Coordinator.contract.Call(opts, &out, "getFeeTier", reqCount)
 
@@ -615,17 +579,17 @@ func (_Coordinator *CoordinatorCaller) GetFeeTier(opts *bind.CallOpts, reqCount 
 
 }
 
-// GetFeeTier is a free data retrieval call binding the contract method 0xd2f9f9a7.
+// GetFeeTier is a free data retrieval call binding the contract method 0xeccea3e2.
 //
-// Solidity: function getFeeTier(uint64 reqCount) view returns(uint32)
-func (_Coordinator *CoordinatorSession) GetFeeTier(reqCount uint64) (uint32, error) {
+// Solidity: function getFeeTier(uint256 reqCount) view returns(uint32)
+func (_Coordinator *CoordinatorSession) GetFeeTier(reqCount *big.Int) (uint32, error) {
 	return _Coordinator.Contract.GetFeeTier(&_Coordinator.CallOpts, reqCount)
 }
 
-// GetFeeTier is a free data retrieval call binding the contract method 0xd2f9f9a7.
+// GetFeeTier is a free data retrieval call binding the contract method 0xeccea3e2.
 //
-// Solidity: function getFeeTier(uint64 reqCount) view returns(uint32)
-func (_Coordinator *CoordinatorCallerSession) GetFeeTier(reqCount uint64) (uint32, error) {
+// Solidity: function getFeeTier(uint256 reqCount) view returns(uint32)
+func (_Coordinator *CoordinatorCallerSession) GetFeeTier(reqCount *big.Int) (uint32, error) {
 	return _Coordinator.Contract.GetFeeTier(&_Coordinator.CallOpts, reqCount)
 }
 
@@ -664,10 +628,10 @@ func (_Coordinator *CoordinatorCallerSession) GetRequestConfig() (uint16, uint32
 
 // GetSubscription is a free data retrieval call binding the contract method 0xa47c7696.
 //
-// Solidity: function getSubscription(uint64 subId) view returns(uint96 balance, uint64 reqCount, address owner, address[] consumers)
+// Solidity: function getSubscription(uint64 subId) view returns(uint256 balance, uint256 reqCount, address owner, address[] consumers)
 func (_Coordinator *CoordinatorCaller) GetSubscription(opts *bind.CallOpts, subId uint64) (struct {
 	Balance   *big.Int
-	ReqCount  uint64
+	ReqCount  *big.Int
 	Owner     common.Address
 	Consumers []common.Address
 }, error) {
@@ -676,7 +640,7 @@ func (_Coordinator *CoordinatorCaller) GetSubscription(opts *bind.CallOpts, subI
 
 	outstruct := new(struct {
 		Balance   *big.Int
-		ReqCount  uint64
+		ReqCount  *big.Int
 		Owner     common.Address
 		Consumers []common.Address
 	})
@@ -685,7 +649,7 @@ func (_Coordinator *CoordinatorCaller) GetSubscription(opts *bind.CallOpts, subI
 	}
 
 	outstruct.Balance = *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-	outstruct.ReqCount = *abi.ConvertType(out[1], new(uint64)).(*uint64)
+	outstruct.ReqCount = *abi.ConvertType(out[1], new(*big.Int)).(**big.Int)
 	outstruct.Owner = *abi.ConvertType(out[2], new(common.Address)).(*common.Address)
 	outstruct.Consumers = *abi.ConvertType(out[3], new([]common.Address)).(*[]common.Address)
 
@@ -695,10 +659,10 @@ func (_Coordinator *CoordinatorCaller) GetSubscription(opts *bind.CallOpts, subI
 
 // GetSubscription is a free data retrieval call binding the contract method 0xa47c7696.
 //
-// Solidity: function getSubscription(uint64 subId) view returns(uint96 balance, uint64 reqCount, address owner, address[] consumers)
+// Solidity: function getSubscription(uint64 subId) view returns(uint256 balance, uint256 reqCount, address owner, address[] consumers)
 func (_Coordinator *CoordinatorSession) GetSubscription(subId uint64) (struct {
 	Balance   *big.Int
-	ReqCount  uint64
+	ReqCount  *big.Int
 	Owner     common.Address
 	Consumers []common.Address
 }, error) {
@@ -707,10 +671,10 @@ func (_Coordinator *CoordinatorSession) GetSubscription(subId uint64) (struct {
 
 // GetSubscription is a free data retrieval call binding the contract method 0xa47c7696.
 //
-// Solidity: function getSubscription(uint64 subId) view returns(uint96 balance, uint64 reqCount, address owner, address[] consumers)
+// Solidity: function getSubscription(uint64 subId) view returns(uint256 balance, uint256 reqCount, address owner, address[] consumers)
 func (_Coordinator *CoordinatorCallerSession) GetSubscription(subId uint64) (struct {
 	Balance   *big.Int
-	ReqCount  uint64
+	ReqCount  *big.Int
 	Owner     common.Address
 	Consumers []common.Address
 }, error) {
@@ -888,24 +852,24 @@ func (_Coordinator *CoordinatorCallerSession) SSubscriptionConfigs(arg0 uint64) 
 
 // SSubscriptions is a free data retrieval call binding the contract method 0x6840c05e.
 //
-// Solidity: function s_subscriptions(uint64 ) view returns(uint96 balance, uint64 reqCount)
+// Solidity: function s_subscriptions(uint64 ) view returns(uint256 balance, uint256 reqCount)
 func (_Coordinator *CoordinatorCaller) SSubscriptions(opts *bind.CallOpts, arg0 uint64) (struct {
 	Balance  *big.Int
-	ReqCount uint64
+	ReqCount *big.Int
 }, error) {
 	var out []interface{}
 	err := _Coordinator.contract.Call(opts, &out, "s_subscriptions", arg0)
 
 	outstruct := new(struct {
 		Balance  *big.Int
-		ReqCount uint64
+		ReqCount *big.Int
 	})
 	if err != nil {
 		return *outstruct, err
 	}
 
 	outstruct.Balance = *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-	outstruct.ReqCount = *abi.ConvertType(out[1], new(uint64)).(*uint64)
+	outstruct.ReqCount = *abi.ConvertType(out[1], new(*big.Int)).(**big.Int)
 
 	return *outstruct, err
 
@@ -913,22 +877,53 @@ func (_Coordinator *CoordinatorCaller) SSubscriptions(opts *bind.CallOpts, arg0 
 
 // SSubscriptions is a free data retrieval call binding the contract method 0x6840c05e.
 //
-// Solidity: function s_subscriptions(uint64 ) view returns(uint96 balance, uint64 reqCount)
+// Solidity: function s_subscriptions(uint64 ) view returns(uint256 balance, uint256 reqCount)
 func (_Coordinator *CoordinatorSession) SSubscriptions(arg0 uint64) (struct {
 	Balance  *big.Int
-	ReqCount uint64
+	ReqCount *big.Int
 }, error) {
 	return _Coordinator.Contract.SSubscriptions(&_Coordinator.CallOpts, arg0)
 }
 
 // SSubscriptions is a free data retrieval call binding the contract method 0x6840c05e.
 //
-// Solidity: function s_subscriptions(uint64 ) view returns(uint96 balance, uint64 reqCount)
+// Solidity: function s_subscriptions(uint64 ) view returns(uint256 balance, uint256 reqCount)
 func (_Coordinator *CoordinatorCallerSession) SSubscriptions(arg0 uint64) (struct {
 	Balance  *big.Int
-	ReqCount uint64
+	ReqCount *big.Int
 }, error) {
 	return _Coordinator.Contract.SSubscriptions(&_Coordinator.CallOpts, arg0)
+}
+
+// WFTN is a free data retrieval call binding the contract method 0xb7e2a68a.
+//
+// Solidity: function wFTN() view returns(address)
+func (_Coordinator *CoordinatorCaller) WFTN(opts *bind.CallOpts) (common.Address, error) {
+	var out []interface{}
+	err := _Coordinator.contract.Call(opts, &out, "wFTN")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// WFTN is a free data retrieval call binding the contract method 0xb7e2a68a.
+//
+// Solidity: function wFTN() view returns(address)
+func (_Coordinator *CoordinatorSession) WFTN() (common.Address, error) {
+	return _Coordinator.Contract.WFTN(&_Coordinator.CallOpts)
+}
+
+// WFTN is a free data retrieval call binding the contract method 0xb7e2a68a.
+//
+// Solidity: function wFTN() view returns(address)
+func (_Coordinator *CoordinatorCallerSession) WFTN() (common.Address, error) {
+	return _Coordinator.Contract.WFTN(&_Coordinator.CallOpts)
 }
 
 // AcceptOwnership is a paid mutator transaction binding the contract method 0x79ba5097.
@@ -1059,44 +1054,65 @@ func (_Coordinator *CoordinatorTransactorSession) DeregisterProvingKey(publicPro
 
 // FulfillRandomWords is a paid mutator transaction binding the contract method 0xaf198b97.
 //
-// Solidity: function fulfillRandomWords((uint256[2],uint256[2],uint256,uint256,uint256,address,uint256[2],uint256[2],uint256) proof, (uint64,uint64,uint32,uint32,address) rc) returns(uint96)
+// Solidity: function fulfillRandomWords((uint256[2],uint256[2],uint256,uint256,uint256,address,uint256[2],uint256[2],uint256) proof, (uint64,uint64,uint32,uint32,address) rc) returns(uint256)
 func (_Coordinator *CoordinatorTransactor) FulfillRandomWords(opts *bind.TransactOpts, proof VRFProof, rc VRFCoordinatorV2RequestCommitment) (*types.Transaction, error) {
 	return _Coordinator.contract.Transact(opts, "fulfillRandomWords", proof, rc)
 }
 
 // FulfillRandomWords is a paid mutator transaction binding the contract method 0xaf198b97.
 //
-// Solidity: function fulfillRandomWords((uint256[2],uint256[2],uint256,uint256,uint256,address,uint256[2],uint256[2],uint256) proof, (uint64,uint64,uint32,uint32,address) rc) returns(uint96)
+// Solidity: function fulfillRandomWords((uint256[2],uint256[2],uint256,uint256,uint256,address,uint256[2],uint256[2],uint256) proof, (uint64,uint64,uint32,uint32,address) rc) returns(uint256)
 func (_Coordinator *CoordinatorSession) FulfillRandomWords(proof VRFProof, rc VRFCoordinatorV2RequestCommitment) (*types.Transaction, error) {
 	return _Coordinator.Contract.FulfillRandomWords(&_Coordinator.TransactOpts, proof, rc)
 }
 
 // FulfillRandomWords is a paid mutator transaction binding the contract method 0xaf198b97.
 //
-// Solidity: function fulfillRandomWords((uint256[2],uint256[2],uint256,uint256,uint256,address,uint256[2],uint256[2],uint256) proof, (uint64,uint64,uint32,uint32,address) rc) returns(uint96)
+// Solidity: function fulfillRandomWords((uint256[2],uint256[2],uint256,uint256,uint256,address,uint256[2],uint256[2],uint256) proof, (uint64,uint64,uint32,uint32,address) rc) returns(uint256)
 func (_Coordinator *CoordinatorTransactorSession) FulfillRandomWords(proof VRFProof, rc VRFCoordinatorV2RequestCommitment) (*types.Transaction, error) {
 	return _Coordinator.Contract.FulfillRandomWords(&_Coordinator.TransactOpts, proof, rc)
 }
 
-// OnTokenTransfer is a paid mutator transaction binding the contract method 0xa4c0ed36.
+// FundBHS is a paid mutator transaction binding the contract method 0x84f24112.
 //
-// Solidity: function onTokenTransfer(address , uint256 amount, bytes data) returns()
-func (_Coordinator *CoordinatorTransactor) OnTokenTransfer(opts *bind.TransactOpts, arg0 common.Address, amount *big.Int, data []byte) (*types.Transaction, error) {
-	return _Coordinator.contract.Transact(opts, "onTokenTransfer", arg0, amount, data)
+// Solidity: function fundBHS(uint256 amount) returns()
+func (_Coordinator *CoordinatorTransactor) FundBHS(opts *bind.TransactOpts, amount *big.Int) (*types.Transaction, error) {
+	return _Coordinator.contract.Transact(opts, "fundBHS", amount)
 }
 
-// OnTokenTransfer is a paid mutator transaction binding the contract method 0xa4c0ed36.
+// FundBHS is a paid mutator transaction binding the contract method 0x84f24112.
 //
-// Solidity: function onTokenTransfer(address , uint256 amount, bytes data) returns()
-func (_Coordinator *CoordinatorSession) OnTokenTransfer(arg0 common.Address, amount *big.Int, data []byte) (*types.Transaction, error) {
-	return _Coordinator.Contract.OnTokenTransfer(&_Coordinator.TransactOpts, arg0, amount, data)
+// Solidity: function fundBHS(uint256 amount) returns()
+func (_Coordinator *CoordinatorSession) FundBHS(amount *big.Int) (*types.Transaction, error) {
+	return _Coordinator.Contract.FundBHS(&_Coordinator.TransactOpts, amount)
 }
 
-// OnTokenTransfer is a paid mutator transaction binding the contract method 0xa4c0ed36.
+// FundBHS is a paid mutator transaction binding the contract method 0x84f24112.
 //
-// Solidity: function onTokenTransfer(address , uint256 amount, bytes data) returns()
-func (_Coordinator *CoordinatorTransactorSession) OnTokenTransfer(arg0 common.Address, amount *big.Int, data []byte) (*types.Transaction, error) {
-	return _Coordinator.Contract.OnTokenTransfer(&_Coordinator.TransactOpts, arg0, amount, data)
+// Solidity: function fundBHS(uint256 amount) returns()
+func (_Coordinator *CoordinatorTransactorSession) FundBHS(amount *big.Int) (*types.Transaction, error) {
+	return _Coordinator.Contract.FundBHS(&_Coordinator.TransactOpts, amount)
+}
+
+// FundSubscibtion is a paid mutator transaction binding the contract method 0x0676c509.
+//
+// Solidity: function fundSubscibtion(uint256 amount, uint64 subId) returns()
+func (_Coordinator *CoordinatorTransactor) FundSubscibtion(opts *bind.TransactOpts, amount *big.Int, subId uint64) (*types.Transaction, error) {
+	return _Coordinator.contract.Transact(opts, "fundSubscibtion", amount, subId)
+}
+
+// FundSubscibtion is a paid mutator transaction binding the contract method 0x0676c509.
+//
+// Solidity: function fundSubscibtion(uint256 amount, uint64 subId) returns()
+func (_Coordinator *CoordinatorSession) FundSubscibtion(amount *big.Int, subId uint64) (*types.Transaction, error) {
+	return _Coordinator.Contract.FundSubscibtion(&_Coordinator.TransactOpts, amount, subId)
+}
+
+// FundSubscibtion is a paid mutator transaction binding the contract method 0x0676c509.
+//
+// Solidity: function fundSubscibtion(uint256 amount, uint64 subId) returns()
+func (_Coordinator *CoordinatorTransactorSession) FundSubscibtion(amount *big.Int, subId uint64) (*types.Transaction, error) {
+	return _Coordinator.Contract.FundSubscibtion(&_Coordinator.TransactOpts, amount, subId)
 }
 
 // OracleWithdraw is a paid mutator transaction binding the contract method 0x66316d8d.
@@ -1246,25 +1262,46 @@ func (_Coordinator *CoordinatorTransactorSession) RequestSubscriptionOwnerTransf
 	return _Coordinator.Contract.RequestSubscriptionOwnerTransfer(&_Coordinator.TransactOpts, subId, newOwner)
 }
 
-// SetConfig is a paid mutator transaction binding the contract method 0x4cb48a54.
+// SetConfig is a paid mutator transaction binding the contract method 0x1d16919b.
 //
-// Solidity: function setConfig(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 stalenessSeconds, uint32 gasAfterPaymentCalculation, int256 fallbackWeiPerUnitLink, (uint32,uint32,uint32,uint32,uint32,uint24,uint24,uint24,uint24) feeConfig) returns()
-func (_Coordinator *CoordinatorTransactor) SetConfig(opts *bind.TransactOpts, minimumRequestConfirmations uint16, maxGasLimit uint32, stalenessSeconds uint32, gasAfterPaymentCalculation uint32, fallbackWeiPerUnitLink *big.Int, feeConfig VRFCoordinatorV2FeeConfig) (*types.Transaction, error) {
-	return _Coordinator.contract.Transact(opts, "setConfig", minimumRequestConfirmations, maxGasLimit, stalenessSeconds, gasAfterPaymentCalculation, fallbackWeiPerUnitLink, feeConfig)
+// Solidity: function setConfig(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 gasAfterPaymentCalculation, (uint32,uint32,uint32,uint32,uint32,uint24,uint24,uint24,uint24) feeConfig) returns()
+func (_Coordinator *CoordinatorTransactor) SetConfig(opts *bind.TransactOpts, minimumRequestConfirmations uint16, maxGasLimit uint32, gasAfterPaymentCalculation uint32, feeConfig VRFCoordinatorV2FeeConfig) (*types.Transaction, error) {
+	return _Coordinator.contract.Transact(opts, "setConfig", minimumRequestConfirmations, maxGasLimit, gasAfterPaymentCalculation, feeConfig)
 }
 
-// SetConfig is a paid mutator transaction binding the contract method 0x4cb48a54.
+// SetConfig is a paid mutator transaction binding the contract method 0x1d16919b.
 //
-// Solidity: function setConfig(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 stalenessSeconds, uint32 gasAfterPaymentCalculation, int256 fallbackWeiPerUnitLink, (uint32,uint32,uint32,uint32,uint32,uint24,uint24,uint24,uint24) feeConfig) returns()
-func (_Coordinator *CoordinatorSession) SetConfig(minimumRequestConfirmations uint16, maxGasLimit uint32, stalenessSeconds uint32, gasAfterPaymentCalculation uint32, fallbackWeiPerUnitLink *big.Int, feeConfig VRFCoordinatorV2FeeConfig) (*types.Transaction, error) {
-	return _Coordinator.Contract.SetConfig(&_Coordinator.TransactOpts, minimumRequestConfirmations, maxGasLimit, stalenessSeconds, gasAfterPaymentCalculation, fallbackWeiPerUnitLink, feeConfig)
+// Solidity: function setConfig(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 gasAfterPaymentCalculation, (uint32,uint32,uint32,uint32,uint32,uint24,uint24,uint24,uint24) feeConfig) returns()
+func (_Coordinator *CoordinatorSession) SetConfig(minimumRequestConfirmations uint16, maxGasLimit uint32, gasAfterPaymentCalculation uint32, feeConfig VRFCoordinatorV2FeeConfig) (*types.Transaction, error) {
+	return _Coordinator.Contract.SetConfig(&_Coordinator.TransactOpts, minimumRequestConfirmations, maxGasLimit, gasAfterPaymentCalculation, feeConfig)
 }
 
-// SetConfig is a paid mutator transaction binding the contract method 0x4cb48a54.
+// SetConfig is a paid mutator transaction binding the contract method 0x1d16919b.
 //
-// Solidity: function setConfig(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 stalenessSeconds, uint32 gasAfterPaymentCalculation, int256 fallbackWeiPerUnitLink, (uint32,uint32,uint32,uint32,uint32,uint24,uint24,uint24,uint24) feeConfig) returns()
-func (_Coordinator *CoordinatorTransactorSession) SetConfig(minimumRequestConfirmations uint16, maxGasLimit uint32, stalenessSeconds uint32, gasAfterPaymentCalculation uint32, fallbackWeiPerUnitLink *big.Int, feeConfig VRFCoordinatorV2FeeConfig) (*types.Transaction, error) {
-	return _Coordinator.Contract.SetConfig(&_Coordinator.TransactOpts, minimumRequestConfirmations, maxGasLimit, stalenessSeconds, gasAfterPaymentCalculation, fallbackWeiPerUnitLink, feeConfig)
+// Solidity: function setConfig(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 gasAfterPaymentCalculation, (uint32,uint32,uint32,uint32,uint32,uint24,uint24,uint24,uint24) feeConfig) returns()
+func (_Coordinator *CoordinatorTransactorSession) SetConfig(minimumRequestConfirmations uint16, maxGasLimit uint32, gasAfterPaymentCalculation uint32, feeConfig VRFCoordinatorV2FeeConfig) (*types.Transaction, error) {
+	return _Coordinator.Contract.SetConfig(&_Coordinator.TransactOpts, minimumRequestConfirmations, maxGasLimit, gasAfterPaymentCalculation, feeConfig)
+}
+
+// SetRewardForBHS is a paid mutator transaction binding the contract method 0x47287d5b.
+//
+// Solidity: function setRewardForBHS(uint256 _amount) returns()
+func (_Coordinator *CoordinatorTransactor) SetRewardForBHS(opts *bind.TransactOpts, _amount *big.Int) (*types.Transaction, error) {
+	return _Coordinator.contract.Transact(opts, "setRewardForBHS", _amount)
+}
+
+// SetRewardForBHS is a paid mutator transaction binding the contract method 0x47287d5b.
+//
+// Solidity: function setRewardForBHS(uint256 _amount) returns()
+func (_Coordinator *CoordinatorSession) SetRewardForBHS(_amount *big.Int) (*types.Transaction, error) {
+	return _Coordinator.Contract.SetRewardForBHS(&_Coordinator.TransactOpts, _amount)
+}
+
+// SetRewardForBHS is a paid mutator transaction binding the contract method 0x47287d5b.
+//
+// Solidity: function setRewardForBHS(uint256 _amount) returns()
+func (_Coordinator *CoordinatorTransactorSession) SetRewardForBHS(_amount *big.Int) (*types.Transaction, error) {
+	return _Coordinator.Contract.SetRewardForBHS(&_Coordinator.TransactOpts, _amount)
 }
 
 // TransferOwnership is a paid mutator transaction binding the contract method 0xf2fde38b.
@@ -1286,6 +1323,141 @@ func (_Coordinator *CoordinatorSession) TransferOwnership(to common.Address) (*t
 // Solidity: function transferOwnership(address to) returns()
 func (_Coordinator *CoordinatorTransactorSession) TransferOwnership(to common.Address) (*types.Transaction, error) {
 	return _Coordinator.Contract.TransferOwnership(&_Coordinator.TransactOpts, to)
+}
+
+// CoordinatorBHSFundedIterator is returned from FilterBHSFunded and is used to iterate over the raw logs and unpacked data for BHSFunded events raised by the Coordinator contract.
+type CoordinatorBHSFundedIterator struct {
+	Event *CoordinatorBHSFunded // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *CoordinatorBHSFundedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(CoordinatorBHSFunded)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(CoordinatorBHSFunded)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *CoordinatorBHSFundedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *CoordinatorBHSFundedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// CoordinatorBHSFunded represents a BHSFunded event raised by the Coordinator contract.
+type CoordinatorBHSFunded struct {
+	OldBalance *big.Int
+	NewBalance *big.Int
+	Raw        types.Log // Blockchain specific contextual infos
+}
+
+// FilterBHSFunded is a free log retrieval operation binding the contract event 0x99f4fc6ca6cb6622c2dd13e569076fe3cbd42b31590fa74823ff01edd876c4f6.
+//
+// Solidity: event BHSFunded(uint256 oldBalance, uint256 newBalance)
+func (_Coordinator *CoordinatorFilterer) FilterBHSFunded(opts *bind.FilterOpts) (*CoordinatorBHSFundedIterator, error) {
+
+	logs, sub, err := _Coordinator.contract.FilterLogs(opts, "BHSFunded")
+	if err != nil {
+		return nil, err
+	}
+	return &CoordinatorBHSFundedIterator{contract: _Coordinator.contract, event: "BHSFunded", logs: logs, sub: sub}, nil
+}
+
+// WatchBHSFunded is a free log subscription operation binding the contract event 0x99f4fc6ca6cb6622c2dd13e569076fe3cbd42b31590fa74823ff01edd876c4f6.
+//
+// Solidity: event BHSFunded(uint256 oldBalance, uint256 newBalance)
+func (_Coordinator *CoordinatorFilterer) WatchBHSFunded(opts *bind.WatchOpts, sink chan<- *CoordinatorBHSFunded) (event.Subscription, error) {
+
+	logs, sub, err := _Coordinator.contract.WatchLogs(opts, "BHSFunded")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(CoordinatorBHSFunded)
+				if err := _Coordinator.contract.UnpackLog(event, "BHSFunded", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseBHSFunded is a log parse operation binding the contract event 0x99f4fc6ca6cb6622c2dd13e569076fe3cbd42b31590fa74823ff01edd876c4f6.
+//
+// Solidity: event BHSFunded(uint256 oldBalance, uint256 newBalance)
+func (_Coordinator *CoordinatorFilterer) ParseBHSFunded(log types.Log) (*CoordinatorBHSFunded, error) {
+	event := new(CoordinatorBHSFunded)
+	if err := _Coordinator.contract.UnpackLog(event, "BHSFunded", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
 }
 
 // CoordinatorConfigSetIterator is returned from FilterConfigSet and is used to iterate over the raw logs and unpacked data for ConfigSet events raised by the Coordinator contract.
@@ -1359,16 +1531,14 @@ func (it *CoordinatorConfigSetIterator) Close() error {
 type CoordinatorConfigSet struct {
 	MinimumRequestConfirmations uint16
 	MaxGasLimit                 uint32
-	StalenessSeconds            uint32
 	GasAfterPaymentCalculation  uint32
-	FallbackWeiPerUnitLink      *big.Int
 	FeeConfig                   VRFCoordinatorV2FeeConfig
 	Raw                         types.Log // Blockchain specific contextual infos
 }
 
-// FilterConfigSet is a free log retrieval operation binding the contract event 0xc21e3bd2e0b339d2848f0dd956947a88966c242c0c0c582a33137a5c1ceb5cb2.
+// FilterConfigSet is a free log retrieval operation binding the contract event 0x3248fab4375f32e0d851d39a71c0750d4652d98bcc7d32cec9d178c9824d796b.
 //
-// Solidity: event ConfigSet(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 stalenessSeconds, uint32 gasAfterPaymentCalculation, int256 fallbackWeiPerUnitLink, (uint32,uint32,uint32,uint32,uint32,uint24,uint24,uint24,uint24) feeConfig)
+// Solidity: event ConfigSet(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 gasAfterPaymentCalculation, (uint32,uint32,uint32,uint32,uint32,uint24,uint24,uint24,uint24) feeConfig)
 func (_Coordinator *CoordinatorFilterer) FilterConfigSet(opts *bind.FilterOpts) (*CoordinatorConfigSetIterator, error) {
 
 	logs, sub, err := _Coordinator.contract.FilterLogs(opts, "ConfigSet")
@@ -1378,9 +1548,9 @@ func (_Coordinator *CoordinatorFilterer) FilterConfigSet(opts *bind.FilterOpts) 
 	return &CoordinatorConfigSetIterator{contract: _Coordinator.contract, event: "ConfigSet", logs: logs, sub: sub}, nil
 }
 
-// WatchConfigSet is a free log subscription operation binding the contract event 0xc21e3bd2e0b339d2848f0dd956947a88966c242c0c0c582a33137a5c1ceb5cb2.
+// WatchConfigSet is a free log subscription operation binding the contract event 0x3248fab4375f32e0d851d39a71c0750d4652d98bcc7d32cec9d178c9824d796b.
 //
-// Solidity: event ConfigSet(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 stalenessSeconds, uint32 gasAfterPaymentCalculation, int256 fallbackWeiPerUnitLink, (uint32,uint32,uint32,uint32,uint32,uint24,uint24,uint24,uint24) feeConfig)
+// Solidity: event ConfigSet(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 gasAfterPaymentCalculation, (uint32,uint32,uint32,uint32,uint32,uint24,uint24,uint24,uint24) feeConfig)
 func (_Coordinator *CoordinatorFilterer) WatchConfigSet(opts *bind.WatchOpts, sink chan<- *CoordinatorConfigSet) (event.Subscription, error) {
 
 	logs, sub, err := _Coordinator.contract.WatchLogs(opts, "ConfigSet")
@@ -1415,9 +1585,9 @@ func (_Coordinator *CoordinatorFilterer) WatchConfigSet(opts *bind.WatchOpts, si
 	}), nil
 }
 
-// ParseConfigSet is a log parse operation binding the contract event 0xc21e3bd2e0b339d2848f0dd956947a88966c242c0c0c582a33137a5c1ceb5cb2.
+// ParseConfigSet is a log parse operation binding the contract event 0x3248fab4375f32e0d851d39a71c0750d4652d98bcc7d32cec9d178c9824d796b.
 //
-// Solidity: event ConfigSet(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 stalenessSeconds, uint32 gasAfterPaymentCalculation, int256 fallbackWeiPerUnitLink, (uint32,uint32,uint32,uint32,uint32,uint24,uint24,uint24,uint24) feeConfig)
+// Solidity: event ConfigSet(uint16 minimumRequestConfirmations, uint32 maxGasLimit, uint32 gasAfterPaymentCalculation, (uint32,uint32,uint32,uint32,uint32,uint24,uint24,uint24,uint24) feeConfig)
 func (_Coordinator *CoordinatorFilterer) ParseConfigSet(log types.Log) (*CoordinatorConfigSet, error) {
 	event := new(CoordinatorConfigSet)
 	if err := _Coordinator.contract.UnpackLog(event, "ConfigSet", log); err != nil {
@@ -2234,9 +2404,9 @@ type CoordinatorRandomWordsFulfilled struct {
 	Raw        types.Log // Blockchain specific contextual infos
 }
 
-// FilterRandomWordsFulfilled is a free log retrieval operation binding the contract event 0x7dffc5ae5ee4e2e4df1651cf6ad329a73cebdb728f37ea0187b9b17e036756e4.
+// FilterRandomWordsFulfilled is a free log retrieval operation binding the contract event 0x221ad2e5b871cead1dd7f75c2fb223c0cfa34bdc049a15f3f82a1f0e943e605a.
 //
-// Solidity: event RandomWordsFulfilled(uint256 indexed requestId, uint256 outputSeed, uint96 payment, bool success)
+// Solidity: event RandomWordsFulfilled(uint256 indexed requestId, uint256 outputSeed, uint256 payment, bool success)
 func (_Coordinator *CoordinatorFilterer) FilterRandomWordsFulfilled(opts *bind.FilterOpts, requestId []*big.Int) (*CoordinatorRandomWordsFulfilledIterator, error) {
 
 	var requestIdRule []interface{}
@@ -2251,9 +2421,9 @@ func (_Coordinator *CoordinatorFilterer) FilterRandomWordsFulfilled(opts *bind.F
 	return &CoordinatorRandomWordsFulfilledIterator{contract: _Coordinator.contract, event: "RandomWordsFulfilled", logs: logs, sub: sub}, nil
 }
 
-// WatchRandomWordsFulfilled is a free log subscription operation binding the contract event 0x7dffc5ae5ee4e2e4df1651cf6ad329a73cebdb728f37ea0187b9b17e036756e4.
+// WatchRandomWordsFulfilled is a free log subscription operation binding the contract event 0x221ad2e5b871cead1dd7f75c2fb223c0cfa34bdc049a15f3f82a1f0e943e605a.
 //
-// Solidity: event RandomWordsFulfilled(uint256 indexed requestId, uint256 outputSeed, uint96 payment, bool success)
+// Solidity: event RandomWordsFulfilled(uint256 indexed requestId, uint256 outputSeed, uint256 payment, bool success)
 func (_Coordinator *CoordinatorFilterer) WatchRandomWordsFulfilled(opts *bind.WatchOpts, sink chan<- *CoordinatorRandomWordsFulfilled, requestId []*big.Int) (event.Subscription, error) {
 
 	var requestIdRule []interface{}
@@ -2293,9 +2463,9 @@ func (_Coordinator *CoordinatorFilterer) WatchRandomWordsFulfilled(opts *bind.Wa
 	}), nil
 }
 
-// ParseRandomWordsFulfilled is a log parse operation binding the contract event 0x7dffc5ae5ee4e2e4df1651cf6ad329a73cebdb728f37ea0187b9b17e036756e4.
+// ParseRandomWordsFulfilled is a log parse operation binding the contract event 0x221ad2e5b871cead1dd7f75c2fb223c0cfa34bdc049a15f3f82a1f0e943e605a.
 //
-// Solidity: event RandomWordsFulfilled(uint256 indexed requestId, uint256 outputSeed, uint96 payment, bool success)
+// Solidity: event RandomWordsFulfilled(uint256 indexed requestId, uint256 outputSeed, uint256 payment, bool success)
 func (_Coordinator *CoordinatorFilterer) ParseRandomWordsFulfilled(log types.Log) (*CoordinatorRandomWordsFulfilled, error) {
 	event := new(CoordinatorRandomWordsFulfilled)
 	if err := _Coordinator.contract.UnpackLog(event, "RandomWordsFulfilled", log); err != nil {
@@ -2470,6 +2640,140 @@ func (_Coordinator *CoordinatorFilterer) WatchRandomWordsRequested(opts *bind.Wa
 func (_Coordinator *CoordinatorFilterer) ParseRandomWordsRequested(log types.Log) (*CoordinatorRandomWordsRequested, error) {
 	event := new(CoordinatorRandomWordsRequested)
 	if err := _Coordinator.contract.UnpackLog(event, "RandomWordsRequested", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// CoordinatorRewardSetIterator is returned from FilterRewardSet and is used to iterate over the raw logs and unpacked data for RewardSet events raised by the Coordinator contract.
+type CoordinatorRewardSetIterator struct {
+	Event *CoordinatorRewardSet // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *CoordinatorRewardSetIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(CoordinatorRewardSet)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(CoordinatorRewardSet)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *CoordinatorRewardSetIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *CoordinatorRewardSetIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// CoordinatorRewardSet represents a RewardSet event raised by the Coordinator contract.
+type CoordinatorRewardSet struct {
+	Reward *big.Int
+	Raw    types.Log // Blockchain specific contextual infos
+}
+
+// FilterRewardSet is a free log retrieval operation binding the contract event 0x4c42db8a799110fdd6a26148a21a5fbe4e581c926bccfd3b2d8a7f3aed4a87c8.
+//
+// Solidity: event RewardSet(uint256 reward)
+func (_Coordinator *CoordinatorFilterer) FilterRewardSet(opts *bind.FilterOpts) (*CoordinatorRewardSetIterator, error) {
+
+	logs, sub, err := _Coordinator.contract.FilterLogs(opts, "RewardSet")
+	if err != nil {
+		return nil, err
+	}
+	return &CoordinatorRewardSetIterator{contract: _Coordinator.contract, event: "RewardSet", logs: logs, sub: sub}, nil
+}
+
+// WatchRewardSet is a free log subscription operation binding the contract event 0x4c42db8a799110fdd6a26148a21a5fbe4e581c926bccfd3b2d8a7f3aed4a87c8.
+//
+// Solidity: event RewardSet(uint256 reward)
+func (_Coordinator *CoordinatorFilterer) WatchRewardSet(opts *bind.WatchOpts, sink chan<- *CoordinatorRewardSet) (event.Subscription, error) {
+
+	logs, sub, err := _Coordinator.contract.WatchLogs(opts, "RewardSet")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(CoordinatorRewardSet)
+				if err := _Coordinator.contract.UnpackLog(event, "RewardSet", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseRewardSet is a log parse operation binding the contract event 0x4c42db8a799110fdd6a26148a21a5fbe4e581c926bccfd3b2d8a7f3aed4a87c8.
+//
+// Solidity: event RewardSet(uint256 reward)
+func (_Coordinator *CoordinatorFilterer) ParseRewardSet(log types.Log) (*CoordinatorRewardSet, error) {
+	event := new(CoordinatorRewardSet)
+	if err := _Coordinator.contract.UnpackLog(event, "RewardSet", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log

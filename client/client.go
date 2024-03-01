@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"math/big"
+	"os"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/sirupsen/logrus"
 )
 
 type Client struct {
@@ -27,8 +29,8 @@ func (cl *Client) BalanceAt(ctx context.Context, address common.Address, blockNu
 	return cl.EthClient.BalanceAt(ctx, address, blockNum)
 }
 
-func NewClient(RPCUrl string) (*Client, error) {
-	client, err := ethclient.Dial(RPCUrl)
+func NewClient() (*Client, error) {
+	client, err := ethclient.Dial(os.Getenv("EC_NODE_WSURL"))
 	if err != nil {
 		fmt.Println("Failed to connect to the Ethereum client:", err)
 		return nil, err
@@ -36,4 +38,17 @@ func NewClient(RPCUrl string) (*Client, error) {
 	return &Client{
 		EthClient: client,
 	}, nil
+}
+
+func (cl *Client) TryReconnect() error {
+	for {
+		cl.EthClient.Close()
+		client, err := ethclient.Dial(os.Getenv("EC_NODE_WSURL"))
+		if err == nil {
+			fmt.Printf("Successfully connected to Ethereum node")
+			cl.EthClient = client
+			return nil
+		}
+		logrus.Errorf("Failed to connect to Ethereum node, Retrying ...")
+	}
 }

@@ -27,10 +27,6 @@ func NewVRFService() *VRFService {
 }
 
 func (vrf *VRFService) GenerateNewVRFKey() (vrfkey.KeyV2, error) {
-	if err := os.Setenv("EC_VRF_KEY_JSON_PATH", "vrf_key.json"); err != nil {
-		logrus.Errorf("failed to set EC_VRF_KEY_JSON_PATH env %v", err)
-		return vrfkey.KeyV2{}, err
-	}
 	key, err := vrfkey.GetKeyIfEnvSet()
 	if err != nil {
 		logrus.Infof("Key is not set trying to generate %v", err)
@@ -47,17 +43,22 @@ func (vrf *VRFService) GenerateNewVRFKey() (vrfkey.KeyV2, error) {
 		return vrfkey.KeyV2{}, err
 	}
 	vrf.key = key
-	if os.Getenv("EC_VRF_KEY_PASSWORD") != "" {
-		encJson, err := vrf.key.ToEncryptedJSON(os.Getenv("EC_VRF_KEY_PASSWORD"), utils.FastScryptParams)
-		if err != nil {
-			logrus.Errorf("failed to encrypt key %v", err)
-			return vrfkey.KeyV2{}, err
-		}
-		if err := os.WriteFile("vrf_key.json", encJson, 0644); err != nil {
-			logrus.Errorf("failed to write json %v", err)
-			return vrfkey.KeyV2{}, err
-		}
+	encJson, err := vrf.key.ToEncryptedJSON(os.Getenv("EC_VRF_KEY_PASSWORD"), utils.FastScryptParams)
+	if err != nil {
+		logrus.Errorf("failed to encrypt key %v", err)
+		return vrfkey.KeyV2{}, err
 	}
+	currentWd, err := os.Getwd()
+	if err != nil {
+		logrus.Errorf("failed to get current working directory %v", err)
+		return vrfkey.KeyV2{}, err
+	}
+	if err := os.WriteFile("vrf_key.json", encJson, 0644); err != nil {
+		logrus.Errorf("failed to write json %v", err)
+		return vrfkey.KeyV2{}, err
+	}
+	logrus.Infof("file vrf_key.json is saved in %s", currentWd)
+
 	return vrf.key, nil
 }
 
@@ -70,7 +71,7 @@ func (vrf *VRFService) GetVrfKey() vrfkey.KeyV2 {
 }
 
 func (vrf *VRFService) PrintVrfKey() {
-	fmt.Println("Succesfully generated VRF Key")
+	logrus.Info("Succesfully generated VRF Key")
 	fmt.Println("------------------------------------------------------------------------------------------------------------------------------------")
 	fmt.Println("Public key")
 	fmt.Println(vrf.key.PublicKey.String())
@@ -98,8 +99,4 @@ func (vrf *VRFService) PrintVrfKey() {
 	x, y := secp256k1.Coordinates(point)
 	fmt.Println(x)
 	fmt.Println(y)
-}
-
-func ProcessPendingVRFRequests() {
-
 }

@@ -63,7 +63,7 @@ interface VRFCoordinatorV2Interface {
    */
   function getSubscription(
     uint64 subId
-  ) external view returns (uint96 balance, uint64 reqCount, address owner, address[] memory consumers);
+  ) external view returns (uint256 balance, uint256 reqCount, address owner, address[] memory consumers);
 
   /**
    * @notice Request subscription owner transfer.

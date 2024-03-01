@@ -8,8 +8,8 @@
         "mode": "debug",
         "program": "${workspaceFolder}/main.go",
         "env": {
-          "EC_VRF_KEY_JSON_PATH": "~/Downloads/test_vrf/vrf_jey.json",
-          "EC_FTN_KEY_JSON_PATH": "~/Downloads/test_vrf/ftn_jey.json",
+          "EC_VRF_KEY_JSON_PATH": "~/Downloads/test_vrf/vrf_key.json",
+          "EC_FTN_KEY_JSON_PATH": "~/Downloads/test_vrf/ftn_key.json",
           "EC_VRF_KEY_PASSWORD":"albertalik1234567890",
           "EC_FTN_KEY_PASSWORD":"albertalik1234567890",
         }     

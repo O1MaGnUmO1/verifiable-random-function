@@ -36,10 +36,6 @@ func NewWalletService(client *client.Client) *WalletService {
 }
 
 func (w *WalletService) CreateNewFTNKey() (ethkey.KeyV2, error) {
-	if err := os.Setenv("EC_FTN_KEY_JSON_PATH", "ftn_key.json"); err != nil {
-		logrus.Errorf("failed to set EC_FTN_KEY_JSON_PATH env %v", err)
-		return ethkey.KeyV2{}, err
-	}
 	ethKey, err := ethkey.GetKeyIfEnvSet()
 	if err != nil {
 		logrus.Infof("Key is not set trying to generate %v", err)
@@ -56,17 +52,26 @@ func (w *WalletService) CreateNewFTNKey() (ethkey.KeyV2, error) {
 		return ethkey.KeyV2{}, err
 	}
 	w.Key = key
-	if os.Getenv("EC_FTN_KEY_PASSWORD") != "" {
-		encJson, err := w.Key.ToEncryptedJSON(os.Getenv("EC_FTN_KEY_PASSWORD"), utils.FastScryptParams)
-		if err != nil {
-			logrus.Errorf("failed to encrypt key %v", err)
-			return ethkey.KeyV2{}, err
-		}
-		if err := os.WriteFile("ftn_key.json", encJson, 0644); err != nil {
-			logrus.Errorf("failed to write json %v", err)
-			return ethkey.KeyV2{}, err
-		}
+	currentWd, err := os.Getwd()
+	if err != nil {
+		logrus.Errorf("failed to get current working directory %v", err)
+		return ethkey.KeyV2{}, err
 	}
+	encJson, err := w.Key.ToEncryptedJSON(os.Getenv("EC_FTN_KEY_PASSWORD"), utils.FastScryptParams)
+	if err != nil {
+		logrus.Errorf("failed to encrypt key %v", err)
+		return ethkey.KeyV2{}, err
+	}
+
+	if err := os.Setenv("EC_FTN_KEY_JSON_PATH", currentWd+"/ftn_key.json"); err != nil {
+		logrus.Errorf("failed to set EC_FTN_KEY_JSON_PATH env %v", err)
+		return ethkey.KeyV2{}, err
+	}
+	if err := os.WriteFile("ftn_key.json", encJson, 0644); err != nil {
+		logrus.Errorf("failed to write json %v", err)
+		return ethkey.KeyV2{}, err
+	}
+	logrus.Infof("file ftn_key.json is saved in %s", currentWd)
 	return w.Key, nil
 }
 
@@ -130,10 +135,7 @@ func (w *WalletService) PrintWalletDetails() {
 	fmt.Println("Balance")
 	balance, err := w.Client.BalanceAt(context.Background(), w.Key.Address, nil)
 	if err != nil {
-		logrus.Fatal("Failed to get balance:", err)
+		logrus.Errorf("Failed to get balance: %v", err)
 	}
-	balanceInEther := new(big.Float).SetInt(balance)
-	etherValue := new(big.Float).Quo(balanceInEther, big.NewFloat(1e18))
-	fmt.Printf("%.18f FTN\n", etherValue)
-	fmt.Println()
+	fmt.Println(WeiToETH(balance))
 }

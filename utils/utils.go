@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"math/big"
+	"os"
 	"sync/atomic"
 	"time"
 
@@ -143,6 +144,14 @@ func CheckUint256(n *big.Int) error {
 		return fmt.Errorf("number out of range for uint256")
 	}
 	return nil
+}
+
+func FileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }
 
 // Keccak256 is a simplified interface for the legacy SHA3 implementation that

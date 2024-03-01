@@ -1,19 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import {LinkTokenInterface} from "./LinkTokenInterface.sol";
-import {AggregatorV3Interface} from "./AggregatorV3Interface.sol";
+import {IERC20} from "./IERC20.sol";
 import {VRFCoordinatorV2Interface} from "./VRFCoordinatorV2Interface.sol";
-import {IERC677Receiver} from "./IERC677Receiver.sol";
 import {VRF} from "./VRF.sol";
 import {ConfirmedOwner} from "./ConfirmedOwner.sol";
 import {VRFConsumerBaseV2} from "./VRFConsumerBaseV2.sol";
+import {IBlockhashStore} from "./IBlockhashStore.sol";
 
-contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IERC677Receiver {
+contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface
+//  IERC677Receiver
+ {
   // solhint-disable-next-line chainlink-solidity/prefix-immutable-variables-with-i
-  LinkTokenInterface public immutable LINK;
+  IERC20 public wFTN;
+  IBlockhashStore public BHS;
   // solhint-disable-next-line chainlink-solidity/prefix-immutable-variables-with-i
-  AggregatorV3Interface public immutable LINK_ETH_FEED;
 
   // We need to maintain a list of consuming addresses.
   // This bound ensures we are able to loop over them as needed.
@@ -34,8 +35,8 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
   // at fulfillment time.
   struct Subscription {
     // There are only 1e9*1e18 = 1e27 juels in existence, so the balance can fit in uint96 (2^96 ~ 7e28)
-    uint96 balance; // Common link balance used for all consumer requests.
-    uint64 reqCount; // For fee tiers
+    uint256 balance; // Common wFTN balance used for all consumer requests.
+    uint256 reqCount; // For fee tiers
   }
   // We use the config for the mgmt APIs
   struct SubscriptionConfig {
@@ -53,21 +54,26 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
   mapping(address => mapping(uint64 => uint64)) /* consumer */ /* subId */ /* nonce */ private s_consumers;
   mapping(uint64 => SubscriptionConfig) /* subId */ /* subscriptionConfig */ public s_subscriptionConfigs;
   mapping(uint64 => Subscription) /* subId */ /* subscription */ public s_subscriptions;
+  mapping(uint256 => bool) private isRequested;
   // We make the sub count public so that its possible to
   // get all the current subscriptions via getSubscription.
   uint64 private s_currentSubId;
-  // s_totalBalance tracks the total link sent to/from
+  // s_totalBalance tracks the total wFTN sent to/from
   // this contract through onTokenTransfer, cancelSubscription and oracleWithdraw.
-  // A discrepancy with this contract's link balance indicates someone
+  // A discrepancy with this contract's wFTN balance indicates someone
   // sent tokens using transfer and so we may need to use recoverFunds.
-  uint96 private s_totalBalance;
+  uint256 private s_totalBalance;
+  uint256 public BHSBalance;
+  uint256 private BHSReward;
+  event RewardSet(uint256 reward);
+  event BHSFunded(uint256 oldBalance, uint256 newBalance);
   event SubscriptionCreated(uint64 indexed subId, address owner);
-  event SubscriptionFunded(uint64 indexed subId, uint256 oldBalance, uint256 newBalance);
   event SubscriptionConsumerAdded(uint64 indexed subId, address consumer);
   event SubscriptionConsumerRemoved(uint64 indexed subId, address consumer);
   event SubscriptionCanceled(uint64 indexed subId, address to, uint256 amount);
-  event SubscriptionOwnerTransferRequested(uint64 indexed subId, address from, address to);
   event SubscriptionOwnerTransferred(uint64 indexed subId, address from, address to);
+  event SubscriptionFunded(uint64 indexed subId, uint256 oldBalance, uint256 newBalance);
+  event SubscriptionOwnerTransferRequested(uint64 indexed subId, address from, address to);
 
   // Set this maximum to 200 to give us a 56 block window to fulfill
   // the request before requiring the block hash feeder.
@@ -81,7 +87,6 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
   error NumWordsTooBig(uint32 have, uint32 want);
   error ProvingKeyAlreadyRegistered(bytes32 keyHash);
   error NoSuchProvingKey(bytes32 keyHash);
-  error InvalidLinkWeiPrice(int256 linkWei);
   error InsufficientGasForConsumer(uint256 have, uint256 want);
   error NoCorrespondingRequest();
   error IncorrectCommitment();
@@ -97,7 +102,7 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
   }
   mapping(bytes32 => address) /* keyHash */ /* oracle */ private s_provingKeys;
   bytes32[] private s_provingKeyHashes;
-  mapping(address => uint96) /* oracle */ /* LINK balance */ private s_withdrawableTokens;
+  mapping(address => uint256) /* oracle */ /* wFTN balance */ private s_withdrawableTokens;
   mapping(uint256 => bytes32) /* requestID */ /* commitment */ private s_requestCommitments;
   event ProvingKeyRegistered(bytes32 keyHash, address indexed oracle);
   event ProvingKeyDeregistered(bytes32 keyHash, address indexed oracle);
@@ -111,31 +116,27 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
     uint32 numWords,
     address indexed sender
   );
-  event RandomWordsFulfilled(uint256 indexed requestId, uint256 outputSeed, uint96 payment, bool success);
+  event RandomWordsFulfilled(uint256 indexed requestId, uint256 outputSeed, uint256 payment, bool success);
 
   struct Config {
     uint16 minimumRequestConfirmations;
     uint32 maxGasLimit;
     // Reentrancy protection.
     bool reentrancyLock;
-    // stalenessSeconds is how long before we consider the feed price to be stale
-    // and fallback to fallbackWeiPerUnitLink.
-    uint32 stalenessSeconds;
     // Gas to cover oracle payment after we calculate the payment.
     // We make it configurable in case those operations are repriced.
     uint32 gasAfterPaymentCalculation;
   }
-  int256 private s_fallbackWeiPerUnitLink;
   Config private s_config;
   FeeConfig private s_feeConfig;
   struct FeeConfig {
-    // Flat fee charged per fulfillment in millionths of link
+    // Flat fee charged per fulfillment in millionths of wFTN
     // So fee range is [0, 2^32/10^6].
-    uint32 fulfillmentFlatFeeLinkPPMTier1;
-    uint32 fulfillmentFlatFeeLinkPPMTier2;
-    uint32 fulfillmentFlatFeeLinkPPMTier3;
-    uint32 fulfillmentFlatFeeLinkPPMTier4;
-    uint32 fulfillmentFlatFeeLinkPPMTier5;
+    uint32 fulfillmentFlatFeeWFTNPPMTier1;
+    uint32 fulfillmentFlatFeeWFTNPPMTier2;
+    uint32 fulfillmentFlatFeeWFTNPPMTier3;
+    uint32 fulfillmentFlatFeeWFTNPPMTier4;
+    uint32 fulfillmentFlatFeeWFTNPPMTier5;
     uint24 reqsForTier2;
     uint24 reqsForTier3;
     uint24 reqsForTier4;
@@ -144,18 +145,16 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
   event ConfigSet(
     uint16 minimumRequestConfirmations,
     uint32 maxGasLimit,
-    uint32 stalenessSeconds,
     uint32 gasAfterPaymentCalculation,
-    int256 fallbackWeiPerUnitLink,
     FeeConfig feeConfig
   );
 
   constructor(
-    address link,
-    address linkEthFeed
+    address _wFTN,
+    address _BHS
     ) ConfirmedOwner(msg.sender) {
-    LINK = LinkTokenInterface(link);
-    LINK_ETH_FEED = AggregatorV3Interface(linkEthFeed);
+    wFTN = IERC20(_wFTN);
+    BHS = IBlockhashStore(_BHS);
   }
 
   /**
@@ -207,17 +206,13 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
    * @notice Sets the configuration of the vrfv2 coordinator
    * @param minimumRequestConfirmations global min for request confirmations
    * @param maxGasLimit global max for request gas limit
-   * @param stalenessSeconds if the eth/link feed is more stale then this, use the fallback price
    * @param gasAfterPaymentCalculation gas used in doing accounting after completing the gas measurement
-   * @param fallbackWeiPerUnitLink fallback eth/link price in the case of a stale feed
    * @param feeConfig fee tier configuration
    */
   function setConfig(
     uint16 minimumRequestConfirmations,
     uint32 maxGasLimit,
-    uint32 stalenessSeconds,
     uint32 gasAfterPaymentCalculation,
-    int256 fallbackWeiPerUnitLink,
     FeeConfig memory feeConfig
   ) external onlyOwner {
     if (minimumRequestConfirmations > MAX_REQUEST_CONFIRMATIONS) {
@@ -227,26 +222,26 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
         MAX_REQUEST_CONFIRMATIONS
       );
     }
-    if (fallbackWeiPerUnitLink <= 0) {
-      revert InvalidLinkWeiPrice(fallbackWeiPerUnitLink);
-    }
     s_config = Config({
       minimumRequestConfirmations: minimumRequestConfirmations,
       maxGasLimit: maxGasLimit,
-      stalenessSeconds: stalenessSeconds,
       gasAfterPaymentCalculation: gasAfterPaymentCalculation,
       reentrancyLock: false
     });
     s_feeConfig = feeConfig;
-    s_fallbackWeiPerUnitLink = fallbackWeiPerUnitLink;
     emit ConfigSet(
       minimumRequestConfirmations,
       maxGasLimit,
-      stalenessSeconds,
       gasAfterPaymentCalculation,
-      fallbackWeiPerUnitLink,
       s_feeConfig
     );
+  }
+
+  function setRewardForBHS(
+    uint256 _amount
+  ) external onlyOwner {
+    BHSReward = _amount;
+    emit RewardSet(_amount);
   }
 
   function getConfig()
@@ -255,14 +250,12 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
     returns (
       uint16 minimumRequestConfirmations,
       uint32 maxGasLimit,
-      uint32 stalenessSeconds,
       uint32 gasAfterPaymentCalculation
     )
   {
     return (
       s_config.minimumRequestConfirmations,
       s_config.maxGasLimit,
-      s_config.stalenessSeconds,
       s_config.gasAfterPaymentCalculation
     );
   }
@@ -271,11 +264,11 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
     external
     view
     returns (
-      uint32 fulfillmentFlatFeeLinkPPMTier1,
-      uint32 fulfillmentFlatFeeLinkPPMTier2,
-      uint32 fulfillmentFlatFeeLinkPPMTier3,
-      uint32 fulfillmentFlatFeeLinkPPMTier4,
-      uint32 fulfillmentFlatFeeLinkPPMTier5,
+      uint32 fulfillmentFlatFeeWFTNPPMTier1,
+      uint32 fulfillmentFlatFeeWFTNPPMTier2,
+      uint32 fulfillmentFlatFeeWFTNPPMTier3,
+      uint32 fulfillmentFlatFeeWFTNPPMTier4,
+      uint32 fulfillmentFlatFeeWFTNPPMTier5,
       uint24 reqsForTier2,
       uint24 reqsForTier3,
       uint24 reqsForTier4,
@@ -283,11 +276,11 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
     )
   {
     return (
-      s_feeConfig.fulfillmentFlatFeeLinkPPMTier1,
-      s_feeConfig.fulfillmentFlatFeeLinkPPMTier2,
-      s_feeConfig.fulfillmentFlatFeeLinkPPMTier3,
-      s_feeConfig.fulfillmentFlatFeeLinkPPMTier4,
-      s_feeConfig.fulfillmentFlatFeeLinkPPMTier5,
+      s_feeConfig.fulfillmentFlatFeeWFTNPPMTier1,
+      s_feeConfig.fulfillmentFlatFeeWFTNPPMTier2,
+      s_feeConfig.fulfillmentFlatFeeWFTNPPMTier3,
+      s_feeConfig.fulfillmentFlatFeeWFTNPPMTier4,
+      s_feeConfig.fulfillmentFlatFeeWFTNPPMTier5,
       s_feeConfig.reqsForTier2,
       s_feeConfig.reqsForTier3,
       s_feeConfig.reqsForTier4,
@@ -297,10 +290,6 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
 
   function getTotalBalance() external view returns (uint256) {
     return s_totalBalance;
-  }
-
-  function getFallbackWeiPerUnitLink() external view returns (int256) {
-    return s_fallbackWeiPerUnitLink;
   }
 
   /**
@@ -320,14 +309,14 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
    * @param to address to send link to
    */
   function recoverFunds(address to) external onlyOwner {
-    uint256 externalBalance = LINK.balanceOf(address(this));
+    uint256 externalBalance = wFTN.balanceOf(address(this));
     uint256 internalBalance = uint256(s_totalBalance);
     if (internalBalance > externalBalance) {
       revert BalanceInvariantViolated(internalBalance, externalBalance);
     }
     if (internalBalance < externalBalance) {
       uint256 amount = externalBalance - internalBalance;
-      LINK.transfer(to, amount);
+      wFTN.transfer(to, amount);
       emit FundsRecovered(to, amount);
     }
     // If the balances are equal, nothing to be done.
@@ -389,6 +378,13 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
     s_requestCommitments[requestId] = keccak256(
       abi.encode(requestId, block.number, subId, callbackGasLimit, numWords, msg.sender)
     );
+    if(!isRequested[block.number]){
+      if(BHSBalance >= BHSReward){
+        wFTN.approve(address(BHS), BHSReward);
+        BHS.requestBlockhash(block.number, BHSReward);
+        isRequested[block.number] = true;
+      }
+    }
     emit RandomWordsRequested(
       keyHash,
       requestId,
@@ -492,23 +488,23 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
   /*
    * @notice Compute fee based on the request count
    * @param reqCount number of requests
-   * @return feePPM fee in LINK PPM
+   * @return feePPM fee in wFTN PPM
    */
-  function getFeeTier(uint64 reqCount) public view returns (uint32) {
+  function getFeeTier(uint256 reqCount) public view returns (uint32) {
     FeeConfig memory fc = s_feeConfig;
     if (0 <= reqCount && reqCount <= fc.reqsForTier2) {
-      return fc.fulfillmentFlatFeeLinkPPMTier1;
+      return fc.fulfillmentFlatFeeWFTNPPMTier1;
     }
     if (fc.reqsForTier2 < reqCount && reqCount <= fc.reqsForTier3) {
-      return fc.fulfillmentFlatFeeLinkPPMTier2;
+      return fc.fulfillmentFlatFeeWFTNPPMTier2;
     }
     if (fc.reqsForTier3 < reqCount && reqCount <= fc.reqsForTier4) {
-      return fc.fulfillmentFlatFeeLinkPPMTier3;
+      return fc.fulfillmentFlatFeeWFTNPPMTier3;
     }
     if (fc.reqsForTier4 < reqCount && reqCount <= fc.reqsForTier5) {
-      return fc.fulfillmentFlatFeeLinkPPMTier4;
+      return fc.fulfillmentFlatFeeWFTNPPMTier4;
     }
-    return fc.fulfillmentFlatFeeLinkPPMTier5;
+    return fc.fulfillmentFlatFeeWFTNPPMTier5;
   }
 
   /*
@@ -518,7 +514,7 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
    * @return payment amount billed to the subscription
    * @dev simulated offchain to determine if sufficient balance is present to fulfill the request
    */
-  function fulfillRandomWords(Proof memory proof, RequestCommitment memory rc) external nonReentrant returns (uint96) {
+  function fulfillRandomWords(Proof memory proof, RequestCommitment memory rc) external nonReentrant returns (uint256) {
     uint256 startGas = gasleft();
     (bytes32 keyHash, uint256 requestId, uint256 randomness) = _getRandomnessFromProof(proof, rc); // TEST
 
@@ -541,16 +537,16 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
     s_config.reentrancyLock = false;
 
     // Increment the req count for fee tier selection.
-    uint64 reqCount = s_subscriptions[rc.subId].reqCount;
+    uint256 reqCount = s_subscriptions[rc.subId].reqCount;
     s_subscriptions[rc.subId].reqCount += 1;
 
     // We want to charge users exactly for how much gas they use in their callback.
     // The gasAfterPaymentCalculation is meant to cover these additional operations where we
     // decrement the subscription balance and increment the oracles withdrawable balance.
-    // We also add the flat link fee to the payment amount.
-    // Its specified in millionths of link, if s_config.fulfillmentFlatFeeLinkPPM = 1
-    // 1 link / 1e6 = 1e18 juels / 1e6 = 1e12 juels.
-    uint96 payment = _calculatePaymentAmount(
+    // We also add the flat wFTN fee to the payment amount.
+    // Its specified in millionths of wFTN, if s_config.fulfillmentFlatFeeWFTNPPM = 1
+    // 1 wFTN / 1e6 = 1e18 juels / 1e6 = 1e12 juels.
+    uint256 payment = _calculatePaymentAmount(
       startGas,
       s_config.gasAfterPaymentCalculation,
       getFeeTier(reqCount),
@@ -565,46 +561,21 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
     emit RandomWordsFulfilled(requestId, randomness, payment, success);
     return payment;
   }
-
   // Get the amount of gas used for fulfillment
   function _calculatePaymentAmount(
     uint256 startGas,
     uint256 gasAfterPaymentCalculation,
-    uint32 fulfillmentFlatFeeLinkPPM,
+    uint32 fulfillmentFlatFeeWFTNPPM,
     uint256 weiPerUnitGas
-  ) internal view returns (uint96) {
-    int256 weiPerUnitLink;
-    weiPerUnitLink = _getFeedData(); //check if it will be 1 to 1 with eth
-    if (weiPerUnitLink <= 0) {
-      revert InvalidLinkWeiPrice(weiPerUnitLink);
-    }
-    // (1e18 juels/link) (wei/gas * gas) / (wei/link) = juels
-    uint256 paymentNoFee = (1e18 * (weiPerUnitGas * (gasAfterPaymentCalculation + startGas - gasleft()))) /
-      uint256(weiPerUnitLink);
-    uint256 fee = 1e12 * uint256(fulfillmentFlatFeeLinkPPM);
-    if (paymentNoFee > (1e27 - fee)) {
-      revert PaymentTooLarge(); // Payment + fee cannot be more than all of the link in existence.
-    }
+  ) internal view returns (uint256) {
+        //(juels/link) (wei/gas * gas) = juels
+    uint256 paymentNoFee = weiPerUnitGas * (gasAfterPaymentCalculation + startGas - gasleft());
+    uint256 fee = 1e12 * uint256(fulfillmentFlatFeeWFTNPPM);
     return uint96(paymentNoFee + fee);
   }
 
-  function _getFeedData() private view returns (int256) {
-    uint32 stalenessSeconds = s_config.stalenessSeconds;
-    bool staleFallback = stalenessSeconds > 0;
-    uint256 timestamp;
-    int256 weiPerUnitLink;
-    if(address(LINK_ETH_FEED) != address(0)){
-      (, weiPerUnitLink, , timestamp, ) = LINK_ETH_FEED.latestRoundData();
-    }
-    // solhint-disable-next-line not-rely-on-time
-    if (staleFallback && stalenessSeconds < block.timestamp - timestamp) {
-      weiPerUnitLink = s_fallbackWeiPerUnitLink;
-    }
-    return weiPerUnitLink;
-  }
-
   /*
-   * @notice Oracle withdraw LINK earned through fulfilling requests
+   * @notice Oracle withdraw wFTN earned through fulfilling requests
    * @param recipient where to send the funds
    * @param amount amount to withdraw
    */
@@ -614,19 +585,11 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
     }
     s_withdrawableTokens[msg.sender] -= amount;
     s_totalBalance -= amount;
-    if (!LINK.transfer(recipient, amount)) {
+    if (!wFTN.transfer(recipient, amount)) {
       revert InsufficientBalance();
     }
   }
-
-  function onTokenTransfer(address /* sender */, uint256 amount, bytes calldata data) external override nonReentrant {
-    if (msg.sender != address(LINK)) {
-      revert OnlyCallableFromLink();
-    }
-    if (data.length != 32) {
-      revert InvalidCalldata();
-    }
-    uint64 subId = abi.decode(data, (uint64));
+  function fundSubscibtion(uint256 amount, uint64 subId) external nonReentrant {
     if (s_subscriptionConfigs[subId].owner == address(0)) {
       revert InvalidSubscription();
     }
@@ -635,7 +598,15 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
     uint256 oldBalance = s_subscriptions[subId].balance;
     s_subscriptions[subId].balance += uint96(amount);
     s_totalBalance += uint96(amount);
+    IERC20(wFTN).transferFrom(msg.sender, address(this), amount);
     emit SubscriptionFunded(subId, oldBalance, oldBalance + amount);
+  }
+
+  function fundBHS(uint256 amount) external nonReentrant{
+    IERC20(wFTN).transferFrom(msg.sender, address(this), amount);
+    uint256 oldBalance = BHSBalance;
+    BHSBalance += amount;
+    emit BHSFunded(oldBalance, BHSBalance);
   }
 
   function getCurrentSubId() external view returns (uint64) {
@@ -647,7 +618,7 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
    */
   function getSubscription(
     uint64 subId
-  ) external view override returns (uint96 balance, uint64 reqCount, address owner, address[] memory consumers) {
+  ) external view override returns (uint256 balance, uint256 reqCount, address owner, address[] memory consumers) {
     if (s_subscriptionConfigs[subId].owner == address(0)) {
       revert InvalidSubscription();
     }
@@ -767,7 +738,7 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
   function _cancelSubscriptionHelper(uint64 subId, address to) private nonReentrant {
     SubscriptionConfig memory subConfig = s_subscriptionConfigs[subId];
     Subscription memory sub = s_subscriptions[subId];
-    uint96 balance = sub.balance;
+    uint256 balance = sub.balance;
     // Note bounded by MAX_CONSUMERS;
     // If no consumers, does nothing.
     for (uint256 i = 0; i < subConfig.consumers.length; i++) {
@@ -776,7 +747,7 @@ contract VRFCoordinatorV2 is VRF, ConfirmedOwner, VRFCoordinatorV2Interface, IER
     delete s_subscriptionConfigs[subId];
     delete s_subscriptions[subId];
     s_totalBalance -= balance;
-    if (!LINK.transfer(to, uint256(balance))) {
+    if (!wFTN.transfer(to, uint256(balance))) {
       revert InsufficientBalance();
     }
     emit SubscriptionCanceled(subId, to, balance);
